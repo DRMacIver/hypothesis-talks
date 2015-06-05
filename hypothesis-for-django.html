@@ -56,8 +56,10 @@
         <section>
           <h2>What is Hypothesis?</h2>
           <ul>
-            <li class=fragment>Randomized testing library, based on the Haskell library, Quickcheck.</li>
-            <li class=fragment>Designed to be very Pythonic. You don't need to know what a Monad is.</li>
+            <li class=fragment>Testing library based on the Haskell library, Quickcheck.</li>
+            <li class=fragment>Designed to be very Pythonic (you don't need to know what a monad is).</li>
+            <li class=fragment>You write the tests, Hypothesis gives you the examples.</li>
+            <li class=fragment>Integrates well with your existing testing.</li>
             <li class=fragment>Has (some) special support for Django.</li>
           </ul>
         </section>
@@ -76,6 +78,7 @@
           <h2>The Setup</h2>
 
           <ul>
+            <li class=fragment>We are testing the backend of a Django application.</li>
             <li class=fragment>We have two models: User and Project.</li>
             <li class=fragment>Each project has a set of Users who collaborate on it.</li>
             <li class=fragment>A project has a maximum number of allowed collaborators.</li>
