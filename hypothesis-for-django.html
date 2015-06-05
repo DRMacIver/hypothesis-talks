@@ -77,48 +77,46 @@
 
           <ul>
             <li class=fragment>We have two models: User and Project.</li>
-            <li class=fragment>Each Project is owned by a User.</li>
             <li class=fragment>Each project has a set of Users who collaborate on it.</li>
-            <li class=fragment>The maximum number of collaborators is determined by a property of the owning user.</li>
-            <li class=fragment>If you try to raise the number of collaborators above that, you get an error.</li>
+            <li class=fragment>A project has a maximum number of allowed collaborators.</li>
+            <li class=fragment>If you try to go above that, you get an error.</li>
           </ul>
         </section>
 
         <section>
         <pre class=stretch><code class="python" data-trim>
 def test_can_add_users_up_to_collaborator_limit(self):
-    bob = User.objects.create(
-        email="bob@example.com", collaborator_limit=3
+    project = Project.objects.create(
+        collaborator_limit=3,
+        name="Some project",
     )
-    alice = User.objects.create(email="alice@example.com")
-    jane = User.objects.create(email="jane@example.com")
-    steve = User.objects.create(email="steve@example.com")
-    project = bob.new_project("Some project")
-    project.add_user(alice)
-    project.add_user(jane)
-    project.add_user(steve)
-    self.assertTrue(project.team_contains(alice))
-    self.assertTrue(project.team_contains(jane))
-    self.assertTrue(project.team_contains(steve))
+    alex = User.objects.create(email="alex@example.com")
+    kim = User.objects.create(email="kim@example.com")
+    pat = User.objects.create(email="pat@example.com")
+    project.add_user(alex)
+    project.add_user(kim)
+    project.add_user(pat)
+    self.assertTrue(project.team_contains(alex))
+    self.assertTrue(project.team_contains(kim))
+    self.assertTrue(project.team_contains(pat))
         </code></pre>
         </section>
 
     <section>
         <pre class=stretch><code class="python" data-trim>
 @given(
-    models(User, collaborator_limit=just(3)),
+    models(Project, collaborator_limit=just(3)),
     models(User), models(User), models(User))
-def test_can_add_users_up_to_collaborator_limit_2(
+def test_can_add_users_up_to_collaborator_limit(
     self,
-    bob, alice, jane, steve
+    project, alex, kim, pat
 ):
-    project = bob.new_project("Some project")
-    project.add_user(alice)
-    project.add_user(jane)
-    project.add_user(steve)
-    self.assertTrue(project.team_contains(alice))
-    self.assertTrue(project.team_contains(jane))
-    self.assertTrue(project.team_contains(steve))
+    project.add_user(alex)
+    project.add_user(kim)
+    project.add_user(pat)
+    self.assertTrue(project.team_contains(alex))
+    self.assertTrue(project.team_contains(kim))
+    self.assertTrue(project.team_contains(pat))
         </code></pre>
     </section>
 
@@ -126,116 +124,12 @@ def test_can_add_users_up_to_collaborator_limit_2(
     <section>
         <pre class=stretch><code class=python data-trim>
 @given(
-    models(User, collaborator_limit=integers(
-      min_value=3, max_value=100)),
+    models(Project, collaborator_limit=just(3)),
     lists(models(User), min_size=3, max_size=3))
-def test_can_add_users_up_to_collaborator_limit_3(
+def test_can_add_users_up_to_collaborator_limit(
     self,
-    owner, collaborators
+    project, collaborators
 ):
-    project = owner.new_project("Some project")
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-        </code></pre>
-    </section>
-
-    <section>
-        <pre class=stretch><code class=python data-trim>
-
-@given(
-    models(User,
-           collaborator_limit=integers(
-               min_value=0,
-               max_value=100)),
-    lists(models(User), max_size=3)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, owner, collaborators
-):
-    project = owner.new_project("Some project")
-    for c in collaborators[:owner.collaborator_limit]:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-        </code></pre>
-    </section>
-
-    <section>
-        <pre><code data-trim>
-Falsifying example: test_can_add_users_up_to_collaborator_limit(
-  self=TestProjectManagement(),
-  owner=User(.@.com, collaboration_limit=0),
-  collaborators=[User(.@.biz, collaboration_limit=0)])
-Traceback (most recent call last):
-  (...)
-  self.assertTrue(project.team_contains(c))
-AssertionError: False is not true
-        </code></pre>
-    </section>
-
-    <section>
-        <pre class=stretch><code class=python data-trim>
-
-@given(
-    models(User,
-           collaborator_limit=integers(
-               min_value=0,
-               max_value=100)),
-    lists(models(User), max_size=3)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, owner, collaborators
-):
-    collaborators = collaborators[:owner.collaborator_limit]
-    project = owner.new_project("Some project")
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-        </code></pre>
-    </section>
-
-
-    <section>
-        <pre class=stretch><code class=python data-trim>
-
-@given(
-    models(User,
-           collaborator_limit=integers(
-               min_value=0,
-               max_value=10)),
-    lists(models(User), average_size=10)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, owner, collaborators
-):
-    project = owner.new_project("Some project")
-    collaborators = collaborators[:owner.collaborator_limit]
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-
-        </code></pre>
-    </section>
-
-    <section>
-        <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project,
-           owner=models(User,
-                        collaborator_limit=integers(
-                            min_value=0,
-                            max_value=10))),
-    lists(models(User), average_size=10)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, project, collaborators
-):
-    owner = project.owner
-    collaborators = collaborators[:owner.collaborator_limit]
     for c in collaborators:
         project.add_user(c)
     for c in collaborators:
@@ -246,15 +140,32 @@ def test_can_add_users_up_to_collaborator_limit(
     <section>
         <pre class=stretch><code class=python data-trim>
 @given(
-    models(Project,
-           owner=models(User,
-                        collaborator_limit=integers(
-                            min_value=0,
-                            max_value=10))),
-    lists(models(User), average_size=10)
-)
+    models(Project, collaborator_limit=integers(
+        min_value=0, max_value=20,
+    )),
+    lists(models(User), max_size=20))
 def test_can_add_users_up_to_collaborator_limit(
-    self, project, collaborators
+    self,
+    project, collaborators
+):
+    assume(len(collaborators) &lt;= project.collaborator_limit)
+    for c in collaborators:
+        project.add_user(c)
+    for c in collaborators:
+        self.assertTrue(project.team_contains(c))
+        </code></pre>
+    </section>
+
+    <section>
+        <pre class=stretch><code class=python data-trim>
+@given(
+    models(Project, collaborator_limit=integers(
+        min_value=0, max_value=20,
+    )),
+    lists(models(User), max_size=20))
+def test_can_add_users_up_to_collaborator_limit(
+    self,
+    project, collaborators
 ):
     for c in collaborators:
         project.add_user(c)
@@ -265,177 +176,100 @@ def test_can_add_users_up_to_collaborator_limit(
 
     <section>
         <pre><code data-trim>
+
 Falsifying example: test_can_add_users_up_to_collaborator_limit(
   self=TestProjectManagement(),
-  project=Project('', User(.@.biz, collaboration_limit=0)),
-  collaborators=[User(.@.com, collaboration_limit=0)])
-
+  project=Project('', 0),
+  collaborators=[User(.@.com)]
+)
 Traceback (most recent call last):
-...
+(...)
+  raise LimitReached()
 manager.models.LimitReached
         </code></pre>
-    </section>
+</section>
 
-
+    <!--  example5 -->
     <section>
         <pre class=stretch><code class=python data-trim>
 @given(
-    models(Project,
-           owner=models(User,
-                        collaborator_limit=integers(
-                            min_value=0,
-                            max_value=10))),
-    lists(models(User), average_size=10)
-)
+    models(Project, collaborator_limit=integers(
+        min_value=0, max_value=20,
+    )),
+    lists(models(User), max_size=20))
 def test_can_add_users_up_to_collaborator_limit(
-    self, project, collaborators
+    self,
+    project, collaborators
 ):
-    limit = project.owner.collaborator_limit
-    for c in collaborators[:limit]:
-        project.add_user(c)
-    for c in collaborators[limit:]:
-        with self.assertRaises(LimitReached):
-            project.add_user(c)
-        </code></pre>
-    </section>
-
-    <section>
-        <pre><code data-trim>
-Falsifying example: test_can_add_users_up_to_collaborator_limit(
-  self=TestProjectManagement(),
-  project=Project('', User(.@.org, collaboration_limit=2)),
-  collaborators=[
-    User(.@.biz, collaboration_limit=0),
-    User(.@.biz, collaboration_limit=0),
-    User(.@.biz, collaboration_limit=0)
-  ])
-Traceback (most recent call last):
-(...)
-AssertionError: LimitReached not raised
-        </code></pre>
-    </section>
-
-
-<section>
-    <pre class=stretch><code class=python data-trim>
-    @given(
-        models(Project,
-               owner=models(User,
-                            collaborator_limit=integers(
-                                min_value=0,
-                                max_value=10))),
-        lists(models(User), average_size=10)
-    )
-    def test_can_add_users_up_to_collaborator_limit(
-        self, project, collaborators
-    ):
-        for limit, c in enumerate(collaborators):
-            if project.at_collaboration_limit():
-                break
-            project.add_user(c)
-        for c in collaborators[limit:]:
+    for c in collaborators:
+        if project.at_collaboration_limit():
             with self.assertRaises(LimitReached):
                 project.add_user(c)
-
-    </code></pre>
-</section>
-
-
-<section>
-    <pre><code data-trim>
-Falsifying example: test_can_add_users_up_to_collaborator_limit(
-  self=TestProjectManagement(),
-  project=Project('', User(.@.com, collaboration_limit=0)),
-  collaborators=[]
-)
-Traceback (most recent call last):
-...
-UnboundLocalError:
-  local variable 'limit'referenced before assignment
-    </code></pre>
-</section>
-
-
-<section>
-    <pre class=stretch><code class="python" data-trim>
-
-@given(
-    models(Project,
-           owner=models(User,
-                        collaborator_limit=integers(
-                            min_value=0,
-                            max_value=10))),
-    lists(models(User), average_size=10)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, project, collaborators
-):
-    assume(collaborators)
-    for limit, c in enumerate(collaborators):
-        if project.at_collaboration_limit():
-            break
-        project.add_user(c)
-    for c in collaborators[limit:]:
-        with self.assertRaises(LimitReached):
-            project.add_user(c)
-    </code></pre>
-</section>
-
-
-<section>
-    <pre><code data-trim>
-Falsifying example: test_can_add_users_up_to_collaborator_limit(
-  self=TestProjectManagement(),
-  project=Project('', User(.@.com, collaboration_limit=2)),
-  collaborators=[User(.@.biz, collaboration_limit=0)]
-)
-Traceback (most recent call last):
-(...)
-AssertionError: LimitReached not raised
-    </code></pre>
-</section>
-
-
-<section>
-    <pre class=stretch><code class="python">
-@given(
-    models(Project,
-           owner=models(User,
-                        collaborator_limit=integers(
-                            min_value=0,
-                            max_value=10))),
-    lists(models(User), average_size=10)
-)
-def test_can_add_users_up_to_collaborator_limit(
-    self, project, collaborators
-):
-    assume(collaborators)
-    for c in collaborators:
-        if project.at_collaboration_limit():
-            break
-        project.add_user(c)
-    for c in collaborators:
-        if project.team_contains(c):
-            project.add_user(c)
+            self.assertFalse(project.team_contains(c))
         else:
-            with self.assertRaises(LimitReached):
-                project.add_user(c)
-    </code></pre>
-</section>
+            project.add_user(c)
+            self.assertTrue(project.team_contains(c))
 
-<section>
-    <pre><code data-trim>
+        </code></pre>
+    </section>
+
+    <section>
+        <pre><code data-trim>
 Falsifying example: test_can_add_users_up_to_collaborator_limit(
   self=TestProjectManagement(),
-  project=Project('', User(.@.com, collaboration_limit=1)),
-  collaborators=[User(.@.biz, collaboration_limit=0)])
+  project=Project('', 1),
+  collaborators=[User(.@.biz), User(.@.biz)]
+)
 Traceback (most recent call last):
-(...)
+...
+    self.assertFalse(project.team_contains(c))
+AssertionError: True is not false
+        </code></pre>
+    </section>
+
+
+    <section>
+        <pre class=stretch><code class=python data-trim>
+@given(
+    models(Project, collaborator_limit=integers(
+        min_value=0, max_value=20,
+    )),
+    lists(models(User), max_size=20))
+def test_can_add_users_up_to_collaborator_limit(
+    self,
+    project, collaborators
+):
+    for c in collaborators:
+        if (
+            project.at_collaboration_limit() and
+            not project.team_contains(c)
+        ):
+            with self.assertRaises(LimitReached):
+                project.add_user(c)
+            self.assertFalse(project.team_contains(c))
+        else:
+            project.add_user(c)
+            self.assertTrue(project.team_contains(c))
+        </code></pre>
+    </section>
+
+    <section>
+        <pre><code data-trim>
+Falsifying example: test_can_add_users_up_to_collaborator_limit(
+  self=TestProjectManagement(),
+  project=Project('', 1),
+  collaborators=[
+    User(.@.com),
+    User(.@.com)
+  ]
+)
+Traceback (most recent call last):
+...
+    raise LimitReached()
 manager.models.LimitReached
-    </code></pre>
-</section>
 
-
+        </code></pre>
+    </section>
 
 <section>
     <pre><code class=python data-trim>
@@ -456,16 +290,15 @@ def add_user(self, user):
         raise LimitReached()
     self.collaborators.add(user)
     </code></pre>
+
 </section>
-
-
-<section>
-    <pre><code data-trim>
+    <section>
+        <pre><code data-trim>
 .
--------------------------------------------
-Ran 1 test in 8.507s
-    </code></pre>
-</section>
+----------------------------------------------
+Ran 1 test in 1.833s
+        </code></pre>
+    </section>
 
         <section>
           <h2>Obligatory plug</h2>
