@@ -88,93 +88,122 @@
 
         <section>
         <pre class=stretch><code class="python" data-trim>
-def test_can_add_users_up_to_collaborator_limit(self):
-    project = Project.objects.create(
-        collaborator_limit=3,
-        name="Some project",
-    )
-    alex = User.objects.create(email="alex@example.com")
-    kim = User.objects.create(email="kim@example.com")
-    pat = User.objects.create(email="pat@example.com")
-    project.add_user(alex)
-    project.add_user(kim)
-    project.add_user(pat)
-    self.assertTrue(project.team_contains(alex))
-    self.assertTrue(project.team_contains(kim))
-    self.assertTrue(project.team_contains(pat))
+from .models import User, Project
+from django.test import TestCase
+
+class TestProjectManagement(TestCase):
+    def test_can_add_users_up_to_collaborator_limit(self):
+        project = Project.objects.create(
+            collaborator_limit=3,
+            name="Some project",
+        )
+        alex = User.objects.create(email="alex@example.com")
+        kim = User.objects.create(email="kim@example.com")
+        pat = User.objects.create(email="pat@example.com")
+        project.add_user(alex)
+        project.add_user(kim)
+        project.add_user(pat)
+        self.assertTrue(project.team_contains(alex))
+        self.assertTrue(project.team_contains(kim))
+        self.assertTrue(project.team_contains(pat))
         </code></pre>
         </section>
 
     <section>
         <pre class=stretch><code class="python" data-trim>
-@given(
-    models(Project, collaborator_limit=just(3)),
-    models(User), models(User), models(User))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, alex, kim, pat
-):
-    project.add_user(alex)
-    project.add_user(kim)
-    project.add_user(pat)
-    self.assertTrue(project.team_contains(alex))
-    self.assertTrue(project.team_contains(kim))
-    self.assertTrue(project.team_contains(pat))
+from .models import User, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import just
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=just(3)),
+        models(User), models(User), models(User))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, alex, kim, pat
+    ):
+        project.add_user(alex)
+        project.add_user(kim)
+        project.add_user(pat)
+        self.assertTrue(project.team_contains(alex))
+        self.assertTrue(project.team_contains(kim))
+        self.assertTrue(project.team_contains(pat))
         </code></pre>
     </section>
 
 
     <section>
         <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project, collaborator_limit=just(3)),
-    lists(models(User), min_size=3, max_size=3))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, collaborators
-):
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
+from .models import User, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import just, lists
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=just(3)),
+        lists(models(User), min_size=3, max_size=3))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            project.add_user(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
         </code></pre>
     </section>
 
     <section>
         <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project, collaborator_limit=integers(
-        min_value=0, max_value=20,
-    )),
-    lists(models(User), max_size=20))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, collaborators
-):
-    assume(len(collaborators) &lt;= project.collaborator_limit)
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-        </code></pre>
+
+from .models import User, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given, assume
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(User), max_size=20))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        assume(len(collaborators) &lt;= project.collaborator_limit)
+        for c in collaborators:
+            project.add_user(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
+    </code></pre>
     </section>
+
 
     <section>
         <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project, collaborator_limit=integers(
-        min_value=0, max_value=20,
-    )),
-    lists(models(User), max_size=20))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, collaborators
-):
-    for c in collaborators:
-        project.add_user(c)
-    for c in collaborators:
-        self.assertTrue(project.team_contains(c))
-        </code></pre>
+
+from .models import User, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(User), max_size=20))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            project.add_user(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
+    </code></pre>
     </section>
 
     <section>
@@ -195,24 +224,29 @@ manager.models.LimitReached
     <!--  example5 -->
     <section>
         <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project, collaborator_limit=integers(
-        min_value=0, max_value=20,
-    )),
-    lists(models(User), max_size=20))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, collaborators
-):
-    for c in collaborators:
-        if project.at_collaboration_limit():
-            with self.assertRaises(LimitReached):
-                project.add_user(c)
-            self.assertFalse(project.team_contains(c))
-        else:
-            project.add_user(c)
-            self.assertTrue(project.team_contains(c))
 
+from .models import User, Project, LimitReached
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(User), max_size=20))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            if project.at_collaboration_limit():
+                with self.assertRaises(LimitReached):
+                    project.add_user(c)
+                self.assertFalse(project.team_contains(c))
+            else:
+                project.add_user(c)
+                self.assertTrue(project.team_contains(c))
         </code></pre>
     </section>
 
@@ -233,26 +267,32 @@ AssertionError: True is not false
 
     <section>
         <pre class=stretch><code class=python data-trim>
-@given(
-    models(Project, collaborator_limit=integers(
-        min_value=0, max_value=20,
-    )),
-    lists(models(User), max_size=20))
-def test_can_add_users_up_to_collaborator_limit(
-    self,
-    project, collaborators
-):
-    for c in collaborators:
-        if (
-            project.at_collaboration_limit() and
-            not project.team_contains(c)
-        ):
-            with self.assertRaises(LimitReached):
+
+from .models import User, Project, LimitReached
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(User), max_size=20))
+    def test_can_add_users_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            if (
+                project.at_collaboration_limit() and
+                not project.team_contains(c)
+            ):
+                with self.assertRaises(LimitReached):
+                    project.add_user(c)
+                self.assertFalse(project.team_contains(c))
+            else:
                 project.add_user(c)
-            self.assertFalse(project.team_contains(c))
-        else:
-            project.add_user(c)
-            self.assertTrue(project.team_contains(c))
+                self.assertTrue(project.team_contains(c))
         </code></pre>
     </section>
 
