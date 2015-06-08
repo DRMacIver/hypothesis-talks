@@ -62,6 +62,12 @@
             <li class=fragment>Integrates well with your existing testing.</li>
             <li class=fragment>Has (some) special support for Django.</li>
           </ul>
+
+          <aside class="notes">
+            <p>Anecdote: It's apparently a problem that some people come to the Hypothesis website, see the word
+              "Haskell" and immediately go "NOPE too complicated" and leave.</p>
+            <p>Note: I'm not actually very good at Django.</p>
+          </aside>
         </section>
 
         <section>
@@ -72,6 +78,9 @@
             <li class=fragment>You can find a lot of my opinions at <a href="http://www.drmaciver.com">www.drmaciver.com</a>.</li>
             <li class=fragment>Or as <a href="https://twitter.com/DRMacIver/">@DRMacIver</a> on the Twitters.</li>
           </ul>
+          <aside class="notes">
+            <p>The R. is for namespacing.</p>
+          </aside>
         </section>
 
         <section>
@@ -107,6 +116,15 @@ class TestProjectManagement(TestCase):
         self.assertTrue(project.team_contains(kim))
         self.assertTrue(project.team_contains(pat))
         </code></pre>
+          <aside class="notes">
+            <p>There is a lot of distracting detail in this test compared to the problem we want to test. Which of the following are significant?</p>
+            <ul>
+              <li>Project name.</li>
+              <li>All user emails are from same domain.</li>
+              <li>Precisely 3 users.</li>
+            </ul>
+    
+          </aside>
         </section>
 
     <section>
@@ -131,6 +149,10 @@ class TestProjectManagement(TestCase):
         self.assertTrue(project.team_contains(kim))
         self.assertTrue(project.team_contains(pat))
         </code></pre>
+          <aside class="notes">
+            <p>Still have three users but other distracting features are gone.</p>
+            <p>Note custom test runner for transaction per example.</p>
+          </aside>
     </section>
 
 
@@ -154,6 +176,9 @@ class TestProjectManagement(TestCase):
         for c in collaborators:
             self.assertTrue(project.team_contains(c))
         </code></pre>
+          <aside class="notes">
+            <p>Reduce code duplication by generating a list instead but otherwise the same.</p>
+          </aside>
     </section>
 
     <section>
@@ -179,6 +204,15 @@ class TestProjectManagement(TestCase):
         for c in collaborators:
             self.assertTrue(project.team_contains(c))
     </code></pre>
+          <aside class="notes">
+            <p>Cap of 20 on numbers is arbitrary. Mostly for performance.</p>
+            <p>Note use of assume:</p>
+            <ul>
+              <li>Makes it harder to write useless tests.</li>
+              <li>Hypothesis shapes data away from examples violating assumptions.</li>
+            </ul>
+
+          </aside>
     </section>
 
 
@@ -204,6 +238,9 @@ class TestProjectManagement(TestCase):
         for c in collaborators:
             self.assertTrue(project.team_contains(c))
     </code></pre>
+          <aside class="notes">
+            <p>Now we're going to give Hypothesis free reign and see what breaks. We expect this test to fail right now if things are working correctly.</p>
+          </aside>
     </section>
 
     <section>
@@ -219,6 +256,10 @@ Traceback (most recent call last):
   raise LimitReached()
 manager.models.LimitReached
         </code></pre>
+          <aside class="notes">
+            <p>And it does.</p>
+            <p>Unsurprisingly when we remove the requirement that we don't exceed the limit, we exceed the limit.</p>
+          </aside>
 </section>
 
     <!--  example5 -->
@@ -248,6 +289,10 @@ class TestProjectManagement(TestCase):
                 project.add_user(c)
                 self.assertTrue(project.team_contains(c))
         </code></pre>
+          <aside class="notes">
+            <p>So now we say that that bit was actually what was meant to happen.</p>
+            <p>While we're in the area, make sure that we're not adding and then erroring.</p>
+          </aside>
     </section>
 
     <section>
@@ -262,6 +307,11 @@ Traceback (most recent call last):
     self.assertFalse(project.team_contains(c))
 AssertionError: True is not false
         </code></pre>
+  
+        <aside class="notes">
+          <p>When the user was already on the team, </p>
+        </aside>
+
     </section>
 
 
@@ -294,6 +344,9 @@ class TestProjectManagement(TestCase):
                 project.add_user(c)
                 self.assertTrue(project.team_contains(c))
         </code></pre>
+          <aside class="notes">
+            <p>So lets exclude that case from the first branch and see what happens.</p>
+          </aside>
     </section>
 
     <section>
@@ -312,6 +365,9 @@ Traceback (most recent call last):
 manager.models.LimitReached
 
         </code></pre>
+        <aside class="notes">
+          <p>Hmm. So adding a user who is already on the project gives you a LimitReached. That's a bit weird. Lets look at the code now.</p>
+        </aside>
     </section>
 
 <section>
@@ -321,6 +377,10 @@ def add_user(self, user):
         raise LimitReached()
     self.collaborators.add(user)
     </code></pre>
+        <aside class="notes">
+          <p>So the function will no-op when adding a user unless you're already at the limit in which case it will error.</p>
+          <p>This is weird and inconsistent.</p>
+        </aside>
 </section>
 
 
@@ -333,6 +393,10 @@ def add_user(self, user):
         raise LimitReached()
     self.collaborators.add(user)
     </code></pre>
+        <aside class="notes">
+          <p>We could fix this by making adding a user on the team always error or never error.</p>
+          <p>We choose the latter.</p>
+        </aside>
 
 </section>
     <section>
@@ -341,6 +405,10 @@ def add_user(self, user):
 ----------------------------------------------
 Ran 1 test in 1.833s
         </code></pre>
+        <aside class="notes">
+          <p>And the tests pass! Take a bow.</p>
+          <p>Note that it took a relatively long time to run and that this is configurable.</p>
+        </aside>
     </section>
 
         <section>
@@ -351,6 +419,9 @@ Ran 1 test in 1.833s
           <p class=fragment>
             (I'm also potentially available for other contracting work)
           </p>
+        <aside class="notes">
+          <p>Shoot self in foot and observe that TBH you probably don't need the training or consulting if you just want to get started.</p>
+        </aside>
         </section>
 
         <section>
@@ -363,6 +434,9 @@ Ran 1 test in 1.833s
           <p>
             <a href="https://bit.ly/hypothesis-for-django">https://bit.ly/hypothesis-for-django</a>
           </p>
+        <aside class="notes">
+          <p>Any questions?</p>
+        </aside>
         </section>
 
 
