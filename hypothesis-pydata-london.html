@@ -74,7 +74,7 @@
   <pre class=stretch><code class="python" data-trim>
 import numpy as np
 
-def score(tournament, order):
+def cost(tournament, order):
     n = tournament.shape[0]
     return sum(
         tournament[order[j], order[i]]
@@ -85,12 +85,12 @@ def score(tournament, order):
 def feedback_arc_set_tournament(tournament):
     m, n = tournament.shape
     assert m == n
-    scores = np.zeros(dtype='uint', shape=n)
+    weights = np.zeros(dtype='uint', shape=n)
     for i in range(n):
         for j in range(n):
             if i != j:
-                scores[i] += tournament[j, i]
-    return np.argsort(scores)
+                weights[i] += tournament[j, i]
+    return np.argsort(weights)
   </code></pre>
   </section>
 
@@ -105,8 +105,8 @@ from hypothesis.extra.numpy import arrays
 def test_is_no_worse_than_reverse(tournament):
     result = feedback_arc_set_tournament(tournament)
     assert (
-      score(tournament, result) &lt;=
-      score(tournament, result[::-1])
+      cost(tournament, result) &lt;=
+      cost(tournament, result[::-1])
     )
   </code></pre>
   </section>
@@ -121,8 +121,8 @@ Falsifying example: test_is_no_worse_than_reverse(
     [1, 1, 0]], dtype=uint64))
 
 AssertionError: assert 2.0 &lt;= 1.0
-    where 2.0 = score(tournament, array([0, 1, 2]))
-    and   1.0 = score(tournament, array([2, 1, 0]))
+    where 2.0 = cost(tournament, array([0, 1, 2]))
+    and   1.0 = cost(tournament, array([2, 1, 0]))
   </code></pre>
   </section>
   <section>
