@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Hypothesis for Optimisation</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2.5em; } 
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+    </style>
+  </head>
+
+<body>
+
+<div class="reveal">
+
+<div class="slides">
+  <section>
+    <h1>Hypothesis for Optimisation</h1>
+    <p>
+      <a href="https://bit.ly/hypothesis-pydata-london">https://bit.ly/hypothesis-pydata-london</a>
+    </p>
+  </section>
+  <section>
+    <h2>What is Hypothesis?</h2>
+    <ul>
+      <li class=fragment>Randomised testing library based on the Haskell library, Quickcheck.</li>
+      <li class=fragment>You write the tests, Hypothesis gives you the examples.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>The Problem</h2>
+    <ul>
+      <li>Feedback Arc Set for Tournaments.</li>
+      <li>Given a matrix of numbers, find a permutation of the coordinates that minimizes the sum of backwards pairs.</li>
+      <li>This is an O(god) complexity problem. n=30 is hard. n=100 is insoluble</li>
+      <li class=fragment>How do we test that we've got an optimal solution?</li>
+      <li class=fragment>Well we can't prove we do, but it can be easy to prove we don't...</li>
+    </ul>
+  </section>
+
+  <section>
+  <pre class=stretch><code class="python" data-trim>
+import numpy as np
+
+def score(tournament, order):
+    n = tournament.shape[0]
+    return sum(
+        tournament[order[j], order[i]]
+        for i in range(n)
+        for j in range(i + 1, n)
+    )
+
+def feedback_arc_set_tournament(tournament):
+    m, n = tournament.shape
+    assert m == n
+    scores = np.zeros(dtype='uint', shape=n)
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                scores[i] += tournament[j, i]
+    return np.argsort(scores)
+  </code></pre>
+  </section>
+
+  <section>
+  <pre><code class="python" data-trim>
+
+from hypothesis import given
+from hypothesis.extra.numpy import arrays
+
+
+@given(arrays(dtype='uint', shape=(3, 3)))
+def test_is_no_worse_than_reverse(tournament):
+    result = feedback_arc_set_tournament(tournament)
+    assert (
+      score(tournament, result) &lt;=
+      score(tournament, result[::-1])
+    )
+  </code></pre>
+  </section>
+
+  <section>
+  <pre><code class="python" data-trim>
+
+Falsifying example: test_is_no_worse_than_reverse(
+  tournament=array([
+    [0, 0, 0],
+    [0, 0, 1],
+    [1, 1, 0]], dtype=uint64))
+
+AssertionError: assert 2.0 &lt;= 1.0
+    where 2.0 = score(tournament, array([0, 1, 2]))
+    and   1.0 = score(tournament, array([2, 1, 0]))
+  </code></pre>
+  </section>
+  <section>
+    <h2>Conclusion</h2>
+    <ul>
+      <li class=fragment>Hypothesis hooks your algorithms up to high quality random data.</li>
+      <li class=fragment>Lets you focus on testing invariants rather than writing examples.</li>
+      <li class=fragment>You should be using Hypothesis to test your code.</li>
+    </ul>    
+  </section>
+  <section>
+    <p>
+      <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
+    </p>
+    <p>
+      <a href="https://hypothesis.readthedocs.org/">https://hypothesis.readthedocs.org/</a>
+    </p>
+    <p>
+      <a href="https://bit.ly/hypothesis-pydata-london">https://bit.ly/hypothesis-pydata-london</a>
+    </p>
+  </section>
+
+</div>
+</div>
+
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+</body>
+
+</html>
