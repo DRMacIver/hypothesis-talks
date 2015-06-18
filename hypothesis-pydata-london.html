@@ -63,7 +63,7 @@
     <h2>The Problem</h2>
     <ul>
       <li>Feedback Arc Set for Tournaments.</li>
-      <li>Given an n * n matrix of weights, A, find a permutation of n that minimizes the sum of the backwards coordinates in A.</li>
+      <li>Given an \(n \times n\) matrix of weights, A, find a permutation \(\sigma \in S_n\) that minimizes \(\sum_{i &lt; j} A_{\sigma j, \sigma i} \).</li>
       <li>n=30 is hard. n=100 is insoluble.</li>
     </ul>
   </section>
@@ -160,10 +160,16 @@ AssertionError: assert 2.0 &lt;= 1.0
 
         transition: 'fade',
 
+        math: {
+            mathjax: 'http://cdn.mathjax.org/mathjax/latest/MathJax.js',
+            config: 'TeX-AMS_HTML-full',
+        },
+
         dependencies: [
           { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
           { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
-          { src: 'reveal/plugin/notes/notes.js', async: true }
+          { src: 'reveal/plugin/notes/notes.js', async: true },
+          { src: 'reveal/plugin/math/math.js', async: true },
         ]
       });
 
