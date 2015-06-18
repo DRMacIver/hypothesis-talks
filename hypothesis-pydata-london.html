@@ -55,15 +55,15 @@
   <section>
     <h2>What is Hypothesis?</h2>
     <ul>
-      <li class=fragment>Randomised testing library based on the Haskell library, Quickcheck.</li>
-      <li class=fragment>You write the tests, Hypothesis gives you the examples.</li>
+      <li>Randomised testing library based on the Haskell library, Quickcheck.</li>
+      <li>You write the tests, Hypothesis gives you the examples.</li>
     </ul>
   </section>
   <section>
     <h2>The Problem</h2>
     <ul>
       <li>Feedback Arc Set for Tournaments.</li>
-      <li>Given a matrix of numbers, find a permutation of the coordinates that minimizes the sum of backwards pairs.</li>
+      <li>Given an n * n matrix of weights, A, find a permutation of n that minimizes the sum of the backwards coordinates in A.</li>
       <li>n=30 is hard. n=100 is insoluble.</li>
     </ul>
   </section>
@@ -126,9 +126,9 @@ AssertionError: assert 2.0 &lt;= 1.0
   <section>
     <h2>Conclusion</h2>
     <ul>
-      <li class=fragment>Hypothesis hooks your algorithms up to high quality random data.</li>
-      <li class=fragment>Lets you focus on testing invariants rather than writing examples.</li>
-      <li class=fragment>You should be using Hypothesis to test your code.</li>
+      <li>Hypothesis hooks your algorithms up to high quality random data.</li>
+      <li>Lets you focus on testing invariants rather than writing examples.</li>
+      <li>You should be using Hypothesis to test your code.</li>
     </ul>    
   </section>
   <section>
