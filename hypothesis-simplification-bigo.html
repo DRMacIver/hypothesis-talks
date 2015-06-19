@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Better simplification with less greed</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2.5em; } 
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+    </style>
+  </head>
+
+<body>
+
+<div class="reveal">
+
+<div class="slides">
+  <section>
+    <h1>Getting Nice Examples</h1>
+    <h2>(with less greedy algorithms)</h2>
+    <p>
+      <a href="https://bit.ly/hypothesis-simplification-bigo">https://bit.ly/hypothesis-simplification-bigo</a>
+    </p>
+  </section>
+  <section>
+    <h2>Who am I?</h2>
+    <ul>
+      <li class=fragment>David R. MacIver. The R is for namespacing purposes.</li>
+      <li class=fragment>I wrote a testing library called Hypothesis.</li>
+      <li class=fragment>It was harder than I expected...</li>
+    </ul>
+  </section>
+  <section>
+    <h2>The Problem</h2>
+    <ul>
+      <li class=fragment>Randomized testing: Throw random data of a particular structure at your test functions, see what breaks.</li>
+      <li class=fragment>...but then you've got this huge messy example that nobody can make sense of.</li>
+      <li class=fragment>So we have to shrink it down. How?</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Starting point: Quickcheck</h2>
+
+    <ul>
+      <li class=fragment>We have a function 'shrink' which gives a sequence of simpler examples.</li>
+      <li class=fragment>We then greedily apply it to try to find a simpler example that breaks the test.</li>
+    </ul>
+
+    <div class=fragment>
+      <p>Here's some Python:</p>
+
+      <pre class=stretch><code class="python" data-trim>
+def greedy_shrink(ls, constraint, shrink):
+    while True:
+        for s in basic_shrink(ls):
+            if constraint(s):
+                ls = s
+                break
+        else:
+            return ls
+      </code></pre>
+    </div>
+
+  </section>
+
+  <section>
+    <h2>What's wrong with this?</h2>
+    <ul>
+      <li class=fragment>Nothing much. It's worked pretty well for Quickcheck for 15+ years.</li>
+      <li class=fragment>But Hypothesis is different...
+        <ul>
+          <li class=fragment>Tests are slower (Python, more complex tests)</li>
+          <li class=fragment>Examples are larger.</li>
+        </ul>
+      <li class=fragment>The behaviour of this algorithm becomes pathologically bad in some cases.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>So what to do about it?</h2>
+    <ul>
+      <li class=fragment>It's time to get empirical.</li>
+      <li class=fragment>
+        In order to simplify the non-algorithmic details, we'll be looking
+        exclusively at the case of lists of non-negative integers. The principles
+        generalize fine.
+      </li>
+      <li class=fragment>
+        We'll start by looking at what makes a good shrink function.
+      </li>
+      <li class=fragment>
+        Then we'll see why the greedy algorithm isn't <em>quite</em> the right
+        one.
+      </li>
+      <li class=fragment>
+        And after that we'll start to get clever.
+      </li>
+        
+    </ul>
+  </section>
+  <section>
+    <h2>But first...</h2>
+    <p>What do we even mean by simpler anyway?</p>
+    <pre class="fragment"><code class="python" data-trim>
+def left_is_simpler(x, y):
+    return (len(x), x) &lt; (len(y), y)
+    </code></pre>
+
+    <p class=fragment>And what's our starting distribution?</p>
+
+    <pre class="fragment"><code class="python" data-trim>
+def gen_list():
+    return [
+        random.getrandbits(64)
+        for _ in range(random.randint(0, 100))
+    ]
+    </code></pre>
+  </section>
+  <section>
+    <h2>Attempt 1</h2>
+    <pre><code class="python" data-trim>
+def shrink1(ls):
+    for i in range(len(ls)):
+        s = list(ls)
+        if s[i] &gt; 0:
+            s[i] -= 1
+            yield list(s)
+        del s[i]
+        yield list(s)
+    </code></pre>
+
+  </section>
+
+  <section>
+    <p><code class="python">len(xs) &gt;= 2</code></p>
+    <pre><code class="python" data-trim>
+[5, 5]
+[4, 5]
+[3, 5]
+[2, 5]
+[1, 5]
+[0, 5]
+[0, 4]
+[0, 3]
+[0, 2]
+[0, 1]
+[0, 0]
+    </code></pre>
+    <p>9 shrinks with 17 function calls</p>
+    <p>What if we'd started from [100, 100]?</p>
+  </section>
+  <section>
+    <h2>Guiding Principle</h2>
+    <p>Start from the simple end.</p>
+  </section>
+  <section>
+    <h2>Attempt 2</h2>
+    <pre><code class="python" data-trim>
+def shrink2(ls):
+    for i in range(len(ls)):
+        s = list(ls)
+        del s[i]
+        yield list(s)
+        for x in range(ls[i]):
+            s = list(ls)
+            s[i] = x
+            yield s
+    </code></pre>
+
+  </section>
+
+  <section>
+    <p><code class="python">len(xs) &gt;= 2</code></p>
+    <pre><code class="python" data-trim>
+[5, 5]
+[0, 5]
+[0, 0]
+    </code></pre>
+<p>2 shrinks with 7 function calls</p>
+    <p>✓</p>
+  </section>
+  <section>
+    <p><code class="python">sum(xs) &gt;= 500</code></p>
+    <pre><code class="python" data-trim>
+[1000]
+[500]
+    </code></pre>
+    <p>1 shrink with 1003 function calls</p>
+  </section>
+
+  <section>
+    <pre class=stretch><code class="python" data-trim>
+def shrink_integer(n):
+    if not n:
+        return
+    for k in range(64):
+        probe = 2 ** k
+        if probe &gt;= n:
+            break
+        yield probe - 1
+    probe //= 2
+    while True:
+        probe = (probe + n) // 2
+        yield probe
+        if probe == n - 1:
+            break
+
+def shrink3(ls):
+    for i in range(len(ls)):
+        s = list(ls)
+        del s[i]
+        yield list(s)
+        for x in shrink_integer(ls[i]):
+            s = list(ls)
+            s[i] = x
+            yield s
+
+  </code></pre>
+  </section>
+  <section>
+    <p>What was that all about??</p>
+    <ul>
+      <li>Basically a binary search with a twist.</li>
+      <li>First we do an exponential probe up to n.</li>
+      <li>Then once this would take us past n we break and binary chop towards n.</li>
+    </ul>
+
+  </section>
+
+  <section>
+    <h2>Guiding Principle</h2>
+    <p>Don't generate too many shrinks.
+    <p>(Instead let subsequent shrinks narrow it down.)</p>
+  </section>
+  <section>
+    <p><code class="python">sum(xs) &gt;= 500</code></p>
+    <pre><code class="python" data-trim>
+[1000]
+[511]
+[503]
+[501]
+[500]
+    </code></pre>
+    <p>✓</p>
+    <p>4 shrinks, 79 function calls.</p>
+  </section>
+  <section>
+    <h2>So how are we doing?</h2>
+    <ul>
+      <li class=fragment>Pretty good at small lists with large numbers.</li>
+      <li class=fragment>But what about large lists?</li>
+    </ul>
+  </section>
+
+  <section>
+    <p><code class="python">sum(xs) &gt;= 3</code></p>
+    <pre><code class="python" data-trim>
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+(...)
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2, 2]
+[2, 2, 2, 2, 2]
+[2, 2, 2, 2]
+[2, 2, 2]
+[2, 2]
+[1, 2]
+    </code></pre>
+  <p>
+    19 shrinks with 26 function calls.
+  </p>
+  </section>
+  <section>
+    <pre><code class="python" data-trim>
+def shrink4(ls):
+    i = 1
+    while i &lt; len(ls):
+        yield ls[:i]
+        yield ls[len(ls) - i:]
+
+    for i in range(len(ls)):
+        s = list(ls)
+        del s[i]
+        yield list(s)
+        for x in shrink_integer(ls[i]):
+            s = list(ls)
+            s[i] = x
+            yield s
+  </code></pre>
+  </section>
+
+  <section>
+    <pre class=stretch><code class="python" data-trim>
+def simplify_to_prefix(ls):
+    i = 1
+    while i &lt; len(ls):
+        yield ls[:i]
+        i *= 2
+
+def simplify_individual_elements(ls):
+    for i in range(len(ls)):
+        s = list(ls)
+        del s[i]
+        yield list(s)
+        for x in shrink_integer(ls[i]):
+            s = list(ls)
+            s[i] = x
+            yield s
+
+def shrink4(ls):
+    yield from simplify_to_prefix(ls)
+    yield from simplify_individual_elements(ls)
+  </code></pre>
+  </section>
+
+  <section>
+    <p><code class="python">sum(xs) &gt;= 3</code></p>
+    <pre><code class="python" data-trim>
+[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[2, 2]
+[1, 2]
+    </code></pre>
+  <p>
+    2 shrinks with 12 function calls
+  </p>
+  <p>✓</p>
+  </section>
+  <section>
+    <p><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></p>
+    <pre><code class="python" data-trim>
+[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[7, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[5, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[5, 7, 20, 20, 20, 20, 20, 20, 20, 20]
+[5, 5, 20, 20, 20, 20, 20, 20, 20, 20]
+(...)
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 20]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 7]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+    </code></pre>
+  <p>
+22 shrinks with 695 function calls
+  </p>
+  </section>
+
+  <section>
+    <pre class=stretch><code class="python" data-trim>
+def simplify_shared(ls):
+    shared_indices = {}
+    for i in range(len(ls)):
+        shared_indices.setdefault(ls[i], []).append(i)
+    for sharing in shared_indices.values():
+        if len(sharing) &gt; 1:
+            for v in shrink_integer(ls[sharing[0]]):
+                s = list(ls)
+                for i in sharing:
+                    s[i] = v
+                yield s
+
+def shrink5(ls):
+    yield from simplify_to_prefix(ls)
+    yield from simplify_shared(ls)
+    yield from simplify_individual_elements(ls)
+</code></pre></section>
+
+
+  <section>
+    <p><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></p>
+    <pre><code class="python" data-trim>
+[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+</code></pre>
+<p>4 shrinks with 93 function calls</p>
+    <p>✓<span class=fragment>?</span></p>
+</section>
+
+<section>
+    <p><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></p>
+    <pre><code class="python" data-trim>
+[20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+[21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+[22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+[7, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+(...)
+[5, 5, 5, 5, 5, 5, 5, 5, 7, 31]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 31]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 7]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+</code></pre>
+<p>22 shrinks with 763 function calls</p>
+</section>
+
+  <section>
+    <pre><code class="python" data-trim>
+def replace_with_simpler(ls):
+    values = set(ls)
+    values.remove(max(ls))
+    values = sorted(values)
+    for v in values:
+        yield [min(v, l) for l in ls]
+
+def shrink6(ls):
+    yield from simplify_to_prefix(ls)
+    yield from replace_with_simpler(ls)
+    yield from simplify_shared(ls)
+    yield from simplify_individual_elements(ls)
+    </code></pre>
+  </section>
+
+  <section>
+    <p><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></p>
+    <pre><code class="python" data-trim>
+[20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+</code></pre>
+    <p>
+        5 shrinks with 98 function calls
+    </p>
+    <p>✓</p>
+</section>
+  <section>
+    <h2>Guiding Principle</h2>
+    <p>Earlier shrinks should produce good input to later shrinks.</p>
+  </section>
+
+<section>
+    <p><code class="python">
+        len(set(xs)) &gt;= 10
+    </code></p>
+    <pre><code class="python" data-trim>
+[100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 3, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 2, 103, 104, 105, 106, 107, 108, 109]
+(...)
+[0, 1, 2, 3, 4, 5, 6, 7, 11, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 9, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 15]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 11]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+</code></pre>
+<p>
+20 shrinks with 776 function calls
+</p>
+</section>
+
+  <section>
+    <pre><code class="python" data-trim>
+def greedy_shrink_with_dedupe(ls, constraint, shrink):
+    seen = set()
+    while True:
+        for s in shrink(ls):
+            assert left_is_simpler(s, ls)
+            key = tuple(s)
+            if key in seen:
+                continue
+            seen.add(key)
+            if constraint(s):
+                ls = s
+                break
+        else:
+            return ls
+    </code></pre>
+
+    <p>Doesn't change behaviour, but down to 528 function calls.</p>
+  </section>
+
+  <section>
+    <h2>So why is this so bad?</h2>
+    <p>We're performing a lot of useless operations.</p>
+    <p>In particular we keep retrying useless simplifications on each change.</p>
+    <p>Lets see if we can stop doing that...</p>
+  </section>
+  <section>
+    <pre><code class="python" data-trim>
+def multicourse_shrink1(ls, constraint):
+    seen = set()
+    for shrink in [
+        simplify_to_prefix,
+        replace_with_simpler,
+        simplify_shared,
+        simplify_individual_elements,
+    ]:
+        ls = greedy_shrink_with_dedupe(
+            ls, constraint, shrink, seen)
+    return ls
+    </code></pre>
+  </section>
+
+  <section>
+    <p><code class="python">
+        len(set(xs)) &gt;= 10
+    </code></p>
+    <pre class=stretch><code class="python" data-trim>
+[100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 102, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 3, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 2, 103, 104, 105, 106, 107, 108, 109]
+[0, 1, 2, 3, 104, 105, 106, 107, 108, 109]
+[0, 1, 2, 3, 7, 105, 106, 107, 108, 109]
+[0, 1, 2, 3, 5, 105, 106, 107, 108, 109]
+[0, 1, 2, 3, 4, 105, 106, 107, 108, 109]
+[0, 1, 2, 3, 4, 7, 106, 107, 108, 109]
+[0, 1, 2, 3, 4, 5, 106, 107, 108, 109]
+[0, 1, 2, 3, 4, 5, 7, 107, 108, 109]
+[0, 1, 2, 3, 4, 5, 6, 107, 108, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 108, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 15, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 11, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 9, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 109]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 15]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 11]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    </code></pre>
+<p>20 shrinks with 436 function calls</p>
+  </section>
+
+  <section>
+    <pre class=stretch><code class="python" data-trim>
+def simplify_index(i):
+    def accept(ls):
+        if i &gt;= len(ls):
+            return
+        for v in shrink_integer(ls[i]):
+            s = list(ls)
+            s[i] = v
+            yield s
+    return accept
+
+def delete_single_elements(ls):
+    for i in range(len(ls)):
+        s = list(ls)
+        del s[i]
+        yield s
+
+def shrinkers_for(ls):
+    yield simplify_to_prefix
+    yield delete_single_elements
+    yield replace_with_simpler
+    yield simplify_shared
+    for i in range(len(ls)):
+        yield simplify_index(i)
+    </code></pre>
+  </section>
+  <section>
+    <pre><code class="python" data-trim>
+def multicourse_shrink2(ls, constraint):
+    seen = set()
+    for shrink in shrinkers_for(ls):
+        ls = greedy_shrink_with_dedupe(
+            ls, constraint, shrink, seen)
+    return ls
+    </code></pre>
+    <p>Same shrink pattern, but only 75 calls now. Yay!</p>
+    <p class=fragment>But unfortunately it's wrong.</p>
+  </section>
+  <section>
+    <p><code class="python">
+        len(xs) &gt;= 2 and x[0] &gt; x[1]
+    </code></p>
+    <pre><code class="python" data-trim>
+[101, 100]
+[101, 0]
+    </code></pre>
+<p>
+1 shrinks with 16 function calls
+</p>
+  </section>
+  <section>
+    <h2>What happened?</h2>
+    <p>Shrinking the second element enabled further shrinking the first, but in
+       this implementation we never go back to previous indices...</p>
+  </section>
+<section>
+    <pre><code class="python" data-trim>
+[101, 100]
+[101, 0]
+[1, 0]
+    </code></pre>
+<p>
+2 shrinks with 20 function calls
+</p>
+
+<p class=fragment>
+Rerunning the previous example now gives us 124 function calls. It would be
+nice to have it faster yet, but that's probably about as much as we can reasonably
+expect.
+</p>
+</section>
+
+<section>
+
+</section>
+
+  <section>
+    <p>
+      <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
+    </p>
+    <p>
+      <a href="https://hypothesis.readthedocs.org/">https://hypothesis.readthedocs.org/</a>
+    </p>
+    <p>
+      <a href="https://bit.ly/hypothesis-simplification-bigo">https://bit.ly/hypothesis-simplification-bigo</a>
+    </p>
+  </section>
+
+</div>
+</div>
+
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true },
+        ]
+      });
+
+    </script>
+</body>
+
+</html>
