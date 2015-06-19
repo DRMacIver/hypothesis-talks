@@ -602,6 +602,20 @@ def multicourse_shrink2(ls, constraint):
     <p>Shrinking the second element enabled further shrinking the first, but in
        this implementation we never go back to previous indices...</p>
   </section>
+  <section>
+    <pre><code class="python" data-trim>
+def multicourse_shrink3(ls, constraint):
+    seen = set()
+    while True:
+        new_ls = ls
+        for shrink in shrinkers_for(ls):
+            new_ls = greedy_shrink_with_dedupe(
+                new_ls, constraint, shrink, seen)
+        if ls == new_ls:
+            return ls
+        ls = new_ls
+    </code></pre>
+  </section>
 <section>
     <pre><code class="python" data-trim>
 [101, 100]
