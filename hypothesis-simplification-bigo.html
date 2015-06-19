@@ -131,16 +131,6 @@ def greedy_shrink(ls, constraint, shrink):
 def left_is_simpler(x, y):
     return (len(x), x) &lt; (len(y), y)
     </code></pre>
-
-    <p class=fragment>And what's our starting distribution?</p>
-
-    <pre class="fragment"><code class="python" data-trim>
-def gen_list():
-    return [
-        random.getrandbits(64)
-        for _ in range(random.randint(0, 100))
-    ]
-    </code></pre>
   </section>
   <section>
     <h2>Attempt 1</h2>
