@@ -83,7 +83,7 @@
       <pre class=stretch><code class="python" data-trim>
 def greedy_shrink(ls, constraint, shrink):
     while True:
-        for s in basic_shrink(ls):
+        for s in shrink(ls):
             if constraint(s):
                 ls = s
                 break
