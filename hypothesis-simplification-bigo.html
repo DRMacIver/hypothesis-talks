@@ -470,8 +470,9 @@ def shrink6(ls):
         <li class=fragment>Generate lists of uniformly distributed unsigned 32-bit integers,
             with lengths drawn from [0, 100] uniformly at random.</li>
         <li class=fragment>For each condition, draw lists until you get 1000 satisfying that condition.</li>
+        <li class=fragment>Using a fixed seed, so for a given condition each simplifier is run on the same data set.</li>
         <li class=fragment>Now run each simplifier according to that condition
-            measure the 99% of function calls on that sample.</li>
+            measure the maximum number of function calls on that sample.</li>
         <li class=fragment>This is not proper statistics! Sorry. I was in a hurry.</li>
     </ul>
 </section>
