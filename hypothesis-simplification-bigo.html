@@ -41,11 +41,8 @@
       .reveal pre code {
         padding: 20px 50px 20px 50px !important;
       }
-      p {
+      p.prose {
         text-align: left;
-      }
-      p.yay {
-        text-align: center;
       }
 
       section#finale p, section#intro p, p.results {
@@ -179,7 +176,7 @@ def shrink1(ls):
 [0, 0]
     </code></pre>
     <p class=results>9 shrinks with 17 function calls</p>
-    <p>What if we'd started from [100, 100]?</p>
+    <p class=results>What if we'd started from [100, 100]?</p>
   </section>
   <section>
     <h2>Guiding Principle</h2>
@@ -250,7 +247,7 @@ def shrink3(ls):
   </code></pre>
   </section>
   <section>
-    <p>What was that all about??</p>
+    <h2>What was that all about??</h2>
     <ul>
       <li>Basically a binary search with a twist.</li>
       <li>First we do an exponential probe up to n.</li>
@@ -697,7 +694,7 @@ def multicourse_shrink2(ls, constraint):
   </section>
   <section>
     <h2>What happened?</h2>
-    <p>Shrinking the second element enabled further shrinking the first, but in
+    <p class=prose>Shrinking the second element enabled further shrinking the first, but in
        this implementation we never go back to previous indices...</p>
   </section>
   <section>
@@ -724,7 +721,7 @@ def multicourse_shrink3(ls, constraint):
 2 shrinks with 20 function calls
 </p>
 
-<p class=fragment>
+<p class="prose fragment">
 Rerunning the previous example now gives us 124 function calls. It would be
 nice to have it faster yet, but that's probably about as much as we can reasonably
 expect.
@@ -788,18 +785,17 @@ expect.
 
         <section>
           <h2>Obligatory plug</h2>
-          <p>
+          <ul>
+          <li>
             If you write Python, you should be using Hypothesis.
-          </p>
-          <p class=fragment>
+          </li>
+          <li class="fragment">
             I offer Hypothesis training and support <span class=fragment>(but you should start without it).</span>
-          </p>
-          <p class=fragment>
+          </li>
+          <li class="fragment">
             I'm also potentially available for other contracting work.
-          </p>
-        <aside class="notes">
-          <p>Shoot self in foot and observe that TBH you probably don't need the training or consulting if you just want to get started.</p>
-        </aside>
+          </li>
+          </ul>
         </section>
 
   <section id=finale>
