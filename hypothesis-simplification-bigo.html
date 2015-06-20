@@ -126,7 +126,7 @@ def greedy_shrink(ls, constraint, shrink):
   <section>
     <h2>So what to do about it?</h2>
     <ul>
-      <li class=fragment>It's time to get empirical.</li>
+      <li class=fragment>It's time to start looking at concrete examples.</li>
       <li class=fragment>
         In order to simplify the non-algorithmic details, we'll be looking
         exclusively at the case of lists of non-negative integers. The principles
@@ -150,7 +150,6 @@ def left_is_simpler(x, y):
     </code></pre>
   </section>
   <section>
-    <h2>Attempt 1</h2>
     <pre><code class="python" data-trim>
 def shrink1(ls):
     for i in range(len(ls)):
