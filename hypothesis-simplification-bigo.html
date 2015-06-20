@@ -38,6 +38,13 @@
       .reveal pre code {
         padding: 20px 50px 20px 50px !important;
       }
+      p {
+        text-align: left;
+      }
+
+      section#finale p {
+        text-align: center;
+      }
     </style>
   </head>
 
@@ -470,6 +477,7 @@ def shrink6(ls):
 </section>
 
 <section>
+    <h2>Statistical intermission</h2>
 <table>
 <thead>
 <tr>
@@ -593,7 +601,6 @@ def multicourse_shrink1(ls, constraint):
 
 <section>
     <h2>Statistical intermission</h2>
-<p>Lets see how this improves shrink6</p>
 
 <table>
 <thead>
@@ -743,7 +750,45 @@ expect.
 
 </section>
 
-  <section>
+<section>
+    <h2>What's new here?</h2>
+    <ul>
+        <li class=fragment>Somewhere between "none of it" and "most of it".</li>
+        <li class=fragment>Unusual to see this sort of work in a Quickcheck</li>
+        <li class=fragment><a href="https://github.com/silentbicycle/theft">Theft</a>
+            (Quickcheck for C) also does deduplication.</li>
+        <li class=fragment>Multipass shrinking was inspired by <a href="http://lcamtuf.coredump.cx/afl/">afl-tmin</a></li>
+        <li class=fragment>Some of the heuristics were inspired by the implementation of <a href=http://svn.python.org/projects/python/trunk/Objects/listsort.txt>timsort</a>.</li>
+        <li class=fragment>The cloning heuristics are either novel or an independent reinvention.</li> 
+    </ul>
+</section>
+<section>
+    <h2>Why is this unusual?</h2>
+    <ul>
+        <li class=fragment>Because it wasn't needed.</li>
+        <li class=fragment>And because I omitted all the hard parts.</li>
+        <li class=fragment>When working with lists of arbitrary data rather than integers, you can't do many of these.</li>
+        <li class=fragment>...which is why Hypothesis works on an intermediate representation.</li>
+    </ul>
+</section>
+
+        <section>
+          <h2>Obligatory plug</h2>
+          <p>
+            If you write Python, you should be using Hypothesis.
+          </p>
+          <p class=fragment>
+            I offer Hypothesis training and support <span class=fragment>(but you should start without it).</span>
+          </p>
+          <p class=fragment>
+            I'm also potentially available for other contracting work.
+          </p>
+        <aside class="notes">
+          <p>Shoot self in foot and observe that TBH you probably don't need the training or consulting if you just want to get started.</p>
+        </aside>
+        </section>
+
+  <section id=finale>
     <p>
       <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
     </p>
