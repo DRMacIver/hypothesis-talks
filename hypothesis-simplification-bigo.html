@@ -591,6 +591,36 @@ def multicourse_shrink1(ls, constraint):
 <p>20 shrinks with 436 function calls</p>
   </section>
 
+<section>
+    <h2>Statistical intermission</h2>
+
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Normal</th>
+<th>Deduped</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+   <td>length &gt;= 2</td> <td>9</td> <td>6</td>
+</tr>
+<tr>
+   <td>sum &gt;= 500</td> <td>80</td> <td>35</td>
+</tr>
+<tr>
+   <td>sum &gt;= 3</td> <td>9</td> <td>6</td>
+</tr>
+<tr>
+   <td>At least 10 &gt;= 5</td> <td>138</td> <td>95</td>
+</tr>
+<tr>
+   <td>At least 10 distinct</td> <td>1047</td> <td>764</td>
+</tr>
+</tbody>
+</table>
+</section>
   <section>
     <pre class=stretch><code class="python" data-trim>
 def simplify_index(i):
