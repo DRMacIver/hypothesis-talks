@@ -455,6 +455,51 @@ def shrink6(ls):
   </section>
 
 <section>
+    <h2>Statistical intermission</h2>
+    <ul>
+        <li class=fragment>We've seen a lot of hand-crafted examples, but does
+            this really work in the general case? Let's find out!</li>
+        <li class=fragment>We'll investigate behaviour of shrinkers 2 through 6</li>
+        <li class=fragment>Generate lists of uniformly distributed unsigned 32-bit integers,
+            with lengths drawn from [0, 100] uniformly at random.</li>
+        <li class=fragment>For each condition, draw lists until you get 1000 satisfying that condition.</li>
+        <li class=fragment>Now run each simplifier according to that condition
+            measure the 99% of function calls on that sample.</li>
+        <li class=fragment>This is not proper statistics! Sorry. I was in a hurry.</li>
+    </ul>
+</section>
+
+<section>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+   <td>length &gt;= 2</td> <td>104</td> <td>104</td> <td>12</td> <td>12</td> <td>9</td>
+</tr>
+<tr>
+   <td>sum &gt;= 500</td> <td>1101</td> <td>177</td> <td>80</td> <td>80</td> <td>80</td>
+</tr>
+<tr>
+   <td>sum &gt;= 3</td> <td>107</td> <td>106</td> <td>9</td> <td>9</td> <td>9</td>
+</tr>
+<tr>
+   <td>At least 10 &gt;= 5</td> <td>489</td> <td>689</td> <td>719</td> <td>787</td> <td>138</td>
+</tr>
+</tbody>
+</table>
+<p>So 4 and 5 are ambiguous, but 6 is clearly the best.</p>
+</section>
+
+<section>
     <p><code class="python">
         len(set(xs)) &gt;= 10
     </code></p>
