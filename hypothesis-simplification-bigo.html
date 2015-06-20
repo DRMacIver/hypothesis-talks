@@ -78,8 +78,9 @@
   <section>
     <h2>The Problem</h2>
     <ul>
-      <li class=fragment>Randomized testing: Throw random data of a particular structure at your test functions, see what breaks.</li>
-      <li class=fragment>...but then you've got this huge messy example that nobody can make sense of.</li>
+      <li class=fragment>Property based testing.</li>
+      <li class=fragment>Throw random structured data at your tests, see what breaks.</li>
+      <li class=fragment>...but random data is messy and hard to read.</li>
       <li class=fragment>So we have to shrink it down. How?</li>
     </ul>
   </section>
@@ -87,8 +88,8 @@
     <h2>Starting point: Quickcheck</h2>
 
     <ul>
-      <li class=fragment>We have a function 'shrink' which gives a sequence of simpler examples.</li>
-      <li class=fragment>We then greedily apply it to try to find a simpler example that breaks the test.</li>
+      <li class=fragment>We have a shrink function giving sequence of simpler examples.</li>
+      <li class=fragment>We greedily apply it to find simpler examples that break the test.</li>
     </ul>
 
     <div class=fragment>
@@ -124,11 +125,8 @@ def greedy_shrink(ls, constraint, shrink):
     <h2>So what to do about it?</h2>
     <ul>
       <li class=fragment>It's time to start looking at concrete examples.</li>
-      <li class=fragment>
-        In order to simplify the non-algorithmic details, we'll be looking
-        exclusively at the case of lists of non-negative integers. The principles
-        generalize fine.
-      </li>
+      <li class=fragment>We'll be minimizing lists of non-negative integers satisfying some predicate.</li>
+      <li class=fragment>"Minimizing" here means try to get shorter lists of smaller values.</li>
       <li class=fragment>
         We'll start by looking at what makes a good shrink function.
       </li>
@@ -137,14 +135,6 @@ def greedy_shrink(ls, constraint, shrink):
         one.
       </li>
     </ul>
-  </section>
-  <section>
-    <h2>But first...</h2>
-    <p>What do we even mean by simpler anyway?</p>
-    <pre class="fragment"><code class="python" data-trim>
-def left_is_simpler(x, y):
-    return (len(x), x) &lt; (len(y), y)
-    </code></pre>
   </section>
   <section>
     <pre><code class="python" data-trim>
