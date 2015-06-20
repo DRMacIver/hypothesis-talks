@@ -34,12 +34,18 @@
     <![endif]-->
 
     <style>
+      .reveal ul, .reveal p {
+        font-size: 30px;
+      }
       .reveal h1 { font-size: 2.5em; } 
       .reveal pre code {
         padding: 20px 50px 20px 50px !important;
       }
       p {
         text-align: left;
+      }
+      p.yay {
+        text-align: center;
       }
 
       section#finale p {
@@ -200,7 +206,7 @@ def shrink2(ls):
 [0, 0]
     </code></pre>
 <p>2 shrinks with 7 function calls</p>
-    <p>✓</p>
+    <p class=yay>✓</p>
   </section>
   <section>
     <p><code class="python">sum(xs) &gt;= 500</code></p>
@@ -264,7 +270,7 @@ def shrink3(ls):
 [501]
 [500]
     </code></pre>
-    <p>✓</p>
+    <p class=yay>✓</p>
     <p>4 shrinks, 79 function calls.</p>
   </section>
   <section>
@@ -352,7 +358,7 @@ def shrink4(ls):
   <p>
     2 shrinks with 12 function calls
   </p>
-  <p>✓</p>
+  <p class=yay>✓</p>
   </section>
   <section>
     <p><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></p>
@@ -405,7 +411,7 @@ def shrink5(ls):
 [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 </code></pre>
 <p>4 shrinks with 93 function calls</p>
-    <p>✓<span class=fragment>?</span></p>
+    <p class=yay>✓<span class=fragment>?</span></p>
 </section>
 
 <section>
@@ -454,7 +460,7 @@ def shrink6(ls):
     <p>
         5 shrinks with 98 function calls
     </p>
-    <p>✓</p>
+    <p class=yay>✓</p>
 </section>
   <section>
     <h2>Guiding Principle</h2>
@@ -479,6 +485,7 @@ def shrink6(ls):
 
 <section>
     <h2>Statistical intermission</h2>
+
 <table>
 <thead>
 <tr>
