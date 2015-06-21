@@ -423,6 +423,8 @@ def shrink5(ls):
   <section>
     <pre><code class="python" data-trim>
 def replace_with_simpler(ls):
+    if not ls:
+        return
     values = set(ls)
     values.remove(max(ls))
     values = sorted(values)
