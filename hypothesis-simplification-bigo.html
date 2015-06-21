@@ -754,6 +754,34 @@ expect.
 </table>
 </section>
 
+  <section>
+    <h2>So how are we doing?</h2>
+    <ul>
+      <li class=fragment>Pretty good!</li>
+      <li class=fragment>We've gotten very good at exploiting structure.</li>
+      <li class=fragment>This lets us handle large lists by rapidly finding smaller ones.</li>
+      <li class=fragment>But what happens when there is no structure?</li>
+    </ul>
+  </section>
+
+<section>
+<h2>A messy condition</h2>
+<pre><code class="python" data-trim>
+def messy_condition(xs):
+    return repr(xs).encode('utf-8')).hexdigest()[0] == '0'
+</code></pre>
+<p class=prose>
+Worst case is multi-pass takes 9007 vs 958 for single pass greedy algorithm.
+</p>
+
+<p class=prose>
+The problem is that the condition is very sensitive to changes, so later changes
+basically <em>always</em> unlock possible earlier changes. Greedy algorithm can
+exploit this. Multi-pass cannot.
+</p>
+
+</section>
+
 <section>
     <h2>What's new here?</h2>
     <ul>
