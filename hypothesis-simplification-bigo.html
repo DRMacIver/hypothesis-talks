@@ -533,8 +533,9 @@ def shrink6(ls):
 
   <section>
     <pre><code class="python" data-trim>
-def greedy_shrink_with_dedupe(ls, constraint, shrink):
-    seen = set()
+def greedy_shrink_with_dedupe(ls, constraint, shrink, seen=None):
+    if seen is None:
+        seen = set()
     while True:
         for s in shrink(ls):
             assert left_is_simpler(s, ls)
@@ -594,8 +595,9 @@ def greedy_shrink_with_dedupe(ls, constraint, shrink):
   </section>
   <section>
     <pre><code class="python" data-trim>
-def multicourse_shrink1(ls, constraint):
-    seen = set()
+def multicourse_shrink1(ls, constraint, seen):
+    if seen is None:
+        seen = set()
     for shrink in [
         simplify_to_prefix,
         replace_with_simpler,
@@ -663,8 +665,9 @@ def shrinkers_for(ls):
   </section>
   <section>
     <pre><code class="python" data-trim>
-def multicourse_shrink2(ls, constraint):
-    seen = set()
+def multicourse_shrink2(ls, constraint, seen=None):
+    if seen is None:
+        seen = set()
     for shrink in shrinkers_for(ls):
         ls = greedy_shrink_with_dedupe(
             ls, constraint, shrink, seen)
@@ -692,8 +695,9 @@ def multicourse_shrink2(ls, constraint):
   </section>
   <section>
     <pre><code class="python" data-trim>
-def multicourse_shrink3(ls, constraint):
-    seen = set()
+def multicourse_shrink3(ls, constraint, seen=None):
+    if seen is None:
+        seen = set()
     while True:
         new_ls = ls
         for shrink in shrinkers_for(ls):
@@ -780,6 +784,61 @@ basically <em>always</em> unlock possible earlier changes. Greedy algorithm can
 exploit this. Multi-pass cannot.
 </p>
 
+<p class="prose fragment">
+But honestly who cares?
+</p>
+
+</section>
+
+<section>
+<h2>The Future</h2>
+
+<pre class=stretch><code class="python" data-trim>
+def simpler(x, y):
+    return (len(x), x) &lt; (len(y), y)
+
+def multifind(conditions):
+    seen = set()
+    examples = {}
+    def install(ls):
+        labels = [
+            label for label, condition in conditions if condition(ls)]
+        for label in labels:
+            if label not in examples or simpler(ls, examples[label]):
+                examples[label] = ls
+        return labels
+    while len(examples) &lt; len(conditions):
+        install(gen_list())
+    for label in list(examples):
+        examples[label] = multicourse_shrink3(
+            examples[label], lambda x: label in install(x), seen)
+    return examples
+</code></pre>
+
+</section>
+
+<section>
+<h2>The Future</h2>
+
+<p class=prose>
+That finds minimized examples of <em>every</em> condition after only 1250
+examples considered - less than it took for many individual ones
+<span class=fragment>(note: This is not a like for like comparison).</span>
+</p>
+
+<p class="prose fragment">
+With multifind we look for all conditions at once. This lets us start from
+much simpler examples that we happened to find while looking for other things,
+which helps us avoid pathological start conditions.
+</p>
+<p class="prose fragment">
+In Hypothesis, the "conditions" are distinct exceptions, so looking for multiple
+conditions is no more expensive than looking for one.
+</p>
+<p class="prose fragment">
+...still a work in progress. Not in a released version yet.
+</p>
+
 </section>
 
 <section>
@@ -793,6 +852,7 @@ exploit this. Multi-pass cannot.
         <li class=fragment>Some of the principles of good shrinking come straight from Quickheck itself <span class=fragment>(or would have if I'd been paying attention).</span</li>
         <li class=fragment>Some of the heuristics were inspired by the implementation of <a href=http://svn.python.org/projects/python/trunk/Objects/listsort.txt>timsort</a>.</li>
         <li class=fragment>The cloning heuristics are either novel or an independent reinvention.</li> 
+        <li class=fragment>As is the multifind approach.</li> 
     </ul>
 </section>
 <section>
