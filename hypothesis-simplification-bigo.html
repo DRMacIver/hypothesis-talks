@@ -821,10 +821,15 @@ def multifind(conditions):
 <h2>The Future</h2>
 
 <p class=prose>
-That finds minimized examples of <em>every</em> condition after only 1250
-examples considered - less than it took for many individual ones
-<span class=fragment>(note: This is not a like for like comparison).</span>
+That finds minimized examples of <em>every</em> condition after only 1804 calls
+(worst of 1000 runs again). <span class=fragment>Note: This is not a like for like comparison.</span>
 </p>
+
+<p class="prose fragment">
+Most of that is the the two expensive ones (xs[0] &gt; xs[1] and messy). Without
+those two it goes down to 230.
+</p>
+
 
 <p class="prose fragment">
 With multifind we look for all conditions at once. This lets us start from
@@ -836,7 +841,8 @@ In Hypothesis, the "conditions" are distinct exceptions, so looking for multiple
 conditions is no more expensive than looking for one.
 </p>
 <p class="prose fragment">
-...still a work in progress. Not in a released version yet.
+...still a work in progress. Not in a released version yet. Might turn out to be
+not a great idea.
 </p>
 
 </section>
