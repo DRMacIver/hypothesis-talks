@@ -785,58 +785,6 @@ But honestly who cares?
 </section>
 
 <section>
-<h2>The Future</h2>
-
-<pre class=stretch><code class="python" data-trim>
-def simpler(x, y):
-    return (len(x), x) &lt; (len(y), y)
-
-def multifind(conditions):
-    seen = set()
-    examples = {}
-    def install(ls):
-        labels = [
-            label for label, condition in conditions if condition(ls)]
-        for label in labels:
-            if label not in examples or simpler(ls, examples[label]):
-                examples[label] = ls
-        return labels
-    while len(examples) &lt; len(conditions):
-        install(gen_list())
-    for label in list(examples):
-        examples[label] = multicourse_shrink3(
-            examples[label], lambda x: label in install(x), seen)
-    return examples
-</code></pre>
-
-</section>
-
-<section>
-<h2>The Future</h2>
-
-<p class=prose>
-That finds minimized examples of <em>every</em> condition after only 1804 calls
-(worst of 1000 runs again). Most of that is the the two expensive ones (ls[0] &gt; ls[1] and messy). Without
-those two it goes down to 230. <span class=fragment>Note: This is not a like for like comparison.</span>
-</p>
-
-<p class="prose fragment">
-With multifind we look for all conditions at once. This lets us start from
-much simpler examples that we happened to find while looking for other things,
-which helps us avoid pathological start conditions.
-</p>
-<p class="prose fragment">
-In Hypothesis, the "conditions" are a mix of distinct exceptions and (usually) cheap
-classifications, so looking for multiple conditions is no more expensive than looking for one.
-</p>
-<p class="prose fragment">
-...still a work in progress. Not in a released version yet. Might turn out to be
-not a great idea.
-</p>
-
-</section>
-
-<section>
     <h2>What's new here?</h2>
     <ul>
         <li class=fragment>Somewhere between "none of it" and "most of it".</li>
@@ -847,7 +795,6 @@ not a great idea.
         <li class=fragment>Some of the principles of good shrinking come straight from Quickheck itself <span class=fragment>(or would have if I'd been paying attention).</span</li>
         <li class=fragment>Some of the heuristics were inspired by the implementation of <a href=http://svn.python.org/projects/python/trunk/Objects/listsort.txt>timsort</a>.</li>
         <li class=fragment>The cloning heuristics are either novel or an independent reinvention.</li> 
-        <li class=fragment>As is the multifind approach.</li> 
     </ul>
 </section>
 <section>
