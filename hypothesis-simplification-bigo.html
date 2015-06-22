@@ -88,8 +88,8 @@
     <h2>Starting point: Quickcheck</h2>
 
     <ul>
-      <li class=fragment>We have a shrink function giving sequence of simpler examples.</li>
-      <li class=fragment>We greedily apply it to find simpler examples that break the test.</li>
+      <li class=fragment>A shrink function iterates over simpler versions of an example.</li>
+      <li class=fragment>Greedily apply it until no simpler example breaks the test.</li>
     </ul>
 
     <div class=fragment>
@@ -112,29 +112,30 @@ def greedy_shrink(ls, constraint, shrink):
   <section>
     <h2>What's wrong with this?</h2>
     <ul>
-      <li class=fragment>Nothing much. It's worked pretty well for Quickcheck for 15+ years.</li>
+      <li class=fragment>Not much. It's worked pretty well for Quickcheck for 15+ years.</li>
       <li class=fragment>But Hypothesis is different...
         <ul>
           <li class=fragment>Tests are slower (Python, more complex tests)</li>
           <li class=fragment>Examples are larger.</li>
         </ul>
-      <li class=fragment>The behaviour of this algorithm becomes pathologically bad in some cases.</li>
+      <li class=fragment>Some pathologically bad cases for this algorithm.</li>
+      <li class=fragment>So we want to improve worst case behaviour.</li>
     </ul>
   </section>
   <section>
     <h2>So what to do about it?</h2>
     <ul>
-      <li class=fragment>It's time to start looking at concrete examples.</li>
-      <li class=fragment>We'll be minimizing lists of non-negative integers satisfying some predicate.</li>
+      <li class=fragment>We'll start by analyzing some concrete examples.</li>
+      <li class=fragment>We'll focus on lists of non-negative integers.</li>
+      <li class=fragment>We'll minimize just subject to some abstract constraint.</li>
       <li class=fragment>"Minimizing" here means try to get shorter lists of smaller values.</li>
       <li class=fragment>We want to reduce the number of times we call the predicate.</li>
-      <li class=fragment>
-        We'll start by looking at what makes a good shrink function.
-      </li>
+      <li class=fragment>We'll start by looking at what makes a good shrink function.</li>
       <li class=fragment>
         Then we'll see why the greedy algorithm isn't <em>quite</em> the right
         one.
       </li>
+      <li class=fragment>Then we'll finish with a sneak peek at some upcoming work.</li>
     </ul>
   </section>
   <section>
@@ -152,7 +153,7 @@ def shrink1(ls):
   </section>
 
   <section>
-    <h3><code class="python">len(xs) &gt;= 2</code></h3>
+    <h3><code class="python">len(ls) &gt;= 2</code></h3>
     <pre><code class="python" data-trim>
 [5, 5]
 [4, 5]
@@ -189,7 +190,7 @@ def shrink2(ls):
   </section>
 
   <section>
-    <h3><code class="python">len(xs) &gt;= 2</code></h3>
+    <h3><code class="python">len(ls) &gt;= 2</code></h3>
     <pre><code class="python" data-trim>
 [5, 5]
 [0, 5]
@@ -199,12 +200,18 @@ def shrink2(ls):
     <p class=yay>✓</p>
   </section>
   <section>
-    <h3><code class="python">sum(xs) &gt;= 500</code></h3>
+    <h3><code class="python">sum(ls) &gt;= 500</code></h3>
     <pre><code class="python" data-trim>
 [1000]
 [500]
     </code></pre>
     <p>1 shrink with 1003 function calls</p>
+  </section>
+
+  <section>
+    <h2>Guiding Principle</h2>
+    <p>Don't generate too many shrinks.
+    <p>(Instead let subsequent shrinks narrow it down.)</p>
   </section>
 
   <section>
@@ -237,22 +244,7 @@ def shrink3(ls):
   </code></pre>
   </section>
   <section>
-    <h2>What was that all about??</h2>
-    <ul>
-      <li>Basically a binary search with a twist.</li>
-      <li>First we do an exponential probe up to n.</li>
-      <li>Then once this would take us past n we break and binary chop towards n.</li>
-    </ul>
-
-  </section>
-
-  <section>
-    <h2>Guiding Principle</h2>
-    <p>Don't generate too many shrinks.
-    <p>(Instead let subsequent shrinks narrow it down.)</p>
-  </section>
-  <section>
-    <h3><code class="python">sum(xs) &gt;= 500</code></h3>
+    <h3><code class="python">sum(ls) &gt;= 500</code></h3>
     <pre><code class="python" data-trim>
 [1000]
 [511]
@@ -272,7 +264,7 @@ def shrink3(ls):
   </section>
 
   <section>
-    <h3><code class="python">sum(xs) &gt;= 3</code></h3>
+    <h3><code class="python">sum(ls) &gt;= 3</code></h3>
     <pre><code class="python" data-trim>
 [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
@@ -316,13 +308,13 @@ def shrink4(ls):
 
   <section>
     <pre class=stretch><code class="python" data-trim>
-def simplify_to_prefix(ls):
+def shrink_to_prefix(ls):
     i = 1
     while i &lt; len(ls):
         yield ls[:i]
         i *= 2
 
-def simplify_individual_elements(ls):
+def shrink_individual_elements(ls):
     for i in range(len(ls)):
         s = list(ls)
         del s[i]
@@ -333,13 +325,13 @@ def simplify_individual_elements(ls):
             yield s
 
 def shrink4(ls):
-    yield from simplify_to_prefix(ls)
-    yield from simplify_individual_elements(ls)
+    yield from shrink_to_prefix(ls)
+    yield from shrink_individual_elements(ls)
   </code></pre>
   </section>
 
   <section>
-    <h3><code class="python">sum(xs) &gt;= 3</code></h3>
+    <h3><code class="python">sum(ls) &gt;= 3</code></h3>
     <pre><code class="python" data-trim>
 [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 [2, 2]
@@ -351,7 +343,7 @@ def shrink4(ls):
   <p class=yay>✓</p>
   </section>
   <section>
-    <h3><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></h3>
+    <h3><code class="python">len([t for t in ls if t &gt;= 5]) &gt;= 10</code></h3>
     <pre><code class="python" data-trim>
 [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
 [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
@@ -372,7 +364,7 @@ def shrink4(ls):
 
   <section>
     <pre class=stretch><code class="python" data-trim>
-def simplify_shared(ls):
+def shrink_shared(ls):
     shared_indices = {}
     for i in range(len(ls)):
         shared_indices.setdefault(ls[i], []).append(i)
@@ -385,14 +377,14 @@ def simplify_shared(ls):
                 yield s
 
 def shrink5(ls):
-    yield from simplify_to_prefix(ls)
-    yield from simplify_shared(ls)
-    yield from simplify_individual_elements(ls)
+    yield from shrink_to_prefix(ls)
+    yield from shrink_shared(ls)
+    yield from shrink_individual_elements(ls)
 </code></pre></section>
 
 
   <section>
-    <h3><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></h3>
+    <h3><code class="python">len([t for t in ls if t &gt;= 5]) &gt;= 10</code></h3>
     <pre><code class="python" data-trim>
 [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
 [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
@@ -405,7 +397,7 @@ def shrink5(ls):
 </section>
 
 <section>
-    <h3><code class="python">len([t for t in x if t &gt;= 5]) &gt;= 10</code></h3>
+    <h3><code class="python">len([t for t in ls if t &gt;= 5]) &gt;= 10</code></h3>
     <pre><code class="python" data-trim>
 [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
 [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
@@ -432,10 +424,10 @@ def replace_with_simpler(ls):
         yield [min(v, l) for l in ls]
 
 def shrink6(ls):
-    yield from simplify_to_prefix(ls)
+    yield from shrink_to_prefix(ls)
     yield from replace_with_simpler(ls)
-    yield from simplify_shared(ls)
-    yield from simplify_individual_elements(ls)
+    yield from shrink_shared(ls)
+    yield from shrink_individual_elements(ls)
     </code></pre>
   </section>
 
@@ -510,7 +502,7 @@ def shrink6(ls):
 
 <section>
     <h3><code class="python">
-        len(set(xs)) &gt;= 10
+        len(set(ls)) &gt;= 10
     </code></h3>
     <pre><code class="python" data-trim>
 [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
@@ -538,7 +530,6 @@ def greedy_shrink_with_dedupe(ls, constraint, shrink, seen=None):
         seen = set()
     while True:
         for s in shrink(ls):
-            assert left_is_simpler(s, ls)
             key = tuple(s)
             if key in seen:
                 continue
@@ -589,7 +580,7 @@ def greedy_shrink_with_dedupe(ls, constraint, shrink, seen=None):
     <h2>So why is this so bad?</h2>
     <ul>
     <li class=fragment>We're performing a lot of useless operations.</li>
-    <li class=fragment>In particular we keep retrying useless simplifications on each change.</li>
+    <li class=fragment>We keep retrying useless simplifications on each change.</li>
     <li class=fragment>Lets see if we can stop doing that...</li>
     </ul>
   </section>
@@ -599,10 +590,10 @@ def multicourse_shrink1(ls, constraint, seen):
     if seen is None:
         seen = set()
     for shrink in [
-        simplify_to_prefix,
+        shrink_to_prefix,
         replace_with_simpler,
-        simplify_shared,
-        simplify_individual_elements,
+        shrink_shared,
+        shrink_individual_elements,
     ]:
         ls = greedy_shrink_with_dedupe(
             ls, constraint, shrink, seen)
@@ -612,7 +603,7 @@ def multicourse_shrink1(ls, constraint, seen):
 
   <section>
     <h3><code class="python">
-        len(set(xs)) &gt;= 10
+        len(set(ls)) &gt;= 10
     </code></h3>
     <pre class=stretch><code class="python" data-trim>
 [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
@@ -638,7 +629,7 @@ def multicourse_shrink1(ls, constraint, seen):
 
   <section>
     <pre class=stretch><code class="python" data-trim>
-def simplify_index(i):
+def shrink_index(i):
     def accept(ls):
         if i &gt;= len(ls):
             return
@@ -655,12 +646,12 @@ def delete_single_elements(ls):
         yield s
 
 def shrinkers_for(ls):
-    yield simplify_to_prefix
+    yield shrink_to_prefix
     yield delete_single_elements
     yield replace_with_simpler
-    yield simplify_shared
+    yield shrink_shared
     for i in range(len(ls)):
-        yield simplify_index(i)
+        yield shrink_index(i)
     </code></pre>
   </section>
   <section>
@@ -678,7 +669,7 @@ def multicourse_shrink2(ls, constraint, seen=None):
   </section>
   <section>
     <h3><code class="python">
-        len(xs) &gt;= 2 and x[0] &gt; x[1]
+        len(ls) &gt;= 2 and x[0] &gt; x[1]
     </code></h3>
     <pre><code class="python" data-trim>
 [101, 100]
@@ -719,7 +710,7 @@ def multicourse_shrink3(ls, constraint, seen=None):
 </p>
 
 <p class="prose fragment">
-Rerunning the previous example now gives us 124 function calls. It would be
+Rerunning the previous example now gives us 131 function calls. It would be
 nice to have it faster yet, but that's probably about as much as we can reasonably
 expect.
 </p>
@@ -771,8 +762,11 @@ expect.
 <section>
 <h2>A messy condition</h2>
 <pre><code class="python" data-trim>
-def messy_condition(xs):
-    return repr(xs).encode('utf-8')).hexdigest()[0] == '0'
+import hashlib
+
+def messy_condition(ls):
+    return hashlib.md5(
+      repr(ls).encode('utf-8')).hexdigest()[0] == '0'
 </code></pre>
 <p class=prose>
 Worst case is multi-pass takes 9007 vs 958 for single pass greedy algorithm.
@@ -822,14 +816,9 @@ def multifind(conditions):
 
 <p class=prose>
 That finds minimized examples of <em>every</em> condition after only 1804 calls
-(worst of 1000 runs again). <span class=fragment>Note: This is not a like for like comparison.</span>
+(worst of 1000 runs again). Most of that is the the two expensive ones (ls[0] &gt; ls[1] and messy). Without
+those two it goes down to 230. <span class=fragment>Note: This is not a like for like comparison.</span>
 </p>
-
-<p class="prose fragment">
-Most of that is the the two expensive ones (xs[0] &gt; xs[1] and messy). Without
-those two it goes down to 230.
-</p>
-
 
 <p class="prose fragment">
 With multifind we look for all conditions at once. This lets us start from
@@ -837,8 +826,8 @@ much simpler examples that we happened to find while looking for other things,
 which helps us avoid pathological start conditions.
 </p>
 <p class="prose fragment">
-In Hypothesis, the "conditions" are distinct exceptions, so looking for multiple
-conditions is no more expensive than looking for one.
+In Hypothesis, the "conditions" are a mix of distinct exceptions and (usually) cheap
+classifications, so looking for multiple conditions is no more expensive than looking for one.
 </p>
 <p class="prose fragment">
 ...still a work in progress. Not in a released version yet. Might turn out to be
