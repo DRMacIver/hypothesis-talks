@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Finding more bugs with less work</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2.5em; } 
+      .reveal h2 { font-size: 1.5em; } 
+      .reveal h2 { font-size: 1.25em; } 
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+          <h1>Testing with Hypothesis</h1>
+          <h2>Finding more bugs with less work</h2>
+        </section>
+
+        <section>
+          <h2>Who am I?</h2>
+          <ul>
+            <li class=fragment>David R. MacIver. The R is for namespacing purposes.</li>
+            <li class=fragment>I wrote Hypothesis.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Users are great at finding bugs</h2>
+
+          <ol>
+            <li class=fragment>We write some software.</li>
+            <li class=fragment>Users do things we didn't think any sensible person would.</li>
+            <li class=fragment>Software does things they didn't think any sensible software would.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Well that was embarrassing</h2>
+          <ul>
+            <li class=fragment>Users finding bugs makes you look bad.</li>
+            <li class=fragment>It's also expensive.
+              <ul>
+                <li class=fragment>Potentially costs you a sale.</li>
+                <li class=fragment>It certainly costs you time. Diagnosing user bugs is <em>hard</em>.</li>
+              </ul>
+            </li>
+            <li class=fragment>So we want to beat the users to the punch line.</li>
+            <li class=fragment>Who do we ask to find those bugs first?</li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>Cats are bad at finding bugs</h2>
+          <img src="images/sinister.jpg">
+          <p>Sinister <em>loves</em> finding bugs.</p>
+          <p class=fragment>Unfortunately he struggles with the details.</p>
+        </section>
+
+        <section>
+          <h2>Rabbits are great at finding bugs</h2>
+          <img src=images/rabbit.jpg>
+        </section>
+
+        <section>
+          <h2><strike>Rabbits</strike> Computers are good at finding bugs</h2>
+          <ul>
+            <li class=fragment><a href="http://lcamtuf.coredump.cx/afl/">American Fuzzy Lop</a> is a "security-oriented fuzzer".</li>
+            <li class=fragment>It looks for file inputs that will crash a program.</li>
+            <li class=fragment>It's pretty great at what it does.</li>
+            <li class=fragment>Recently <a href="http://lcamtuf.blogspot.co.uk/2015/04/finding-bugs-in-sqlite-easy-way.html">found bugs in SQLite</a>, which is almost certainly better tested than any software you've written.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>But only in very specific cases</h2>
+          <img src="images/random_number.png">
+          <p>(<a href="https://xkcd.com/221/">https://xkcd.com/221/</a>)</p>
+          <p class=fragment>This function never crashes and is therefore correct. Hurrah!</p>
+        </section>
+
+        <section>
+          <h2>Humans are bad at finding bugs</h2>
+          <ul>
+            <li class=fragment>Slow. <span class=fragment>Try checking each of 1000 pages for errors.</span> <span class=fragment>
+              Not much faster the second time you have to do it.</span></li>
+            <li class=fragment>Easily bored. <span class=fragment>Makes it harder to pay attention.</span>
+              <span class=fragment>Easy to accidentally skip steps.</span></li>
+            <li class=fragment>Easily misguided by intuition. <span class=fragment>"I'm sure this is too simple to have bugs".</span>
+              <span class=fragment>"Yeah but nobody would do <em>that</em>".</span>
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h2>Computers don't have these problems</h2>
+          <ul>
+            <li class=fragment>Computers are fast.</li>
+            <li class=fragment>Computers can't get bored.</li>
+            <li class=fragment>Computers don't skip steps because they think they're not needed.</li>
+            <li class=fragment>...but computers still can't find most bugs because they don't know what's supposed to happen.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Cyborgs are <em>great</em> at finding bugs</h2>
+          <ul>
+            <li class=fragment>Intuition and domain knowledge of a human.</li>
+            <li class=fragment>Can offload the boring bits onto their computer half.</li>
+            <li class=fragment>Unfortunately we can't hire cyborgs yet.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>So what can we do instead?</h2>
+
+          <ul>
+            <li class=fragment>We team up with the computer.</li>
+            <li class=fragment>By working <em>with</em> the computer, we can get most of the advantages of each.</li>
+            <li class=fragment>We write specialized programs to look for bugs for us.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>How?</h2>
+          <dl>
+            <dt class=fragment>Example based testing</dt>
+            <dd class=fragment>
+              Try this thing. This is what you should expect to happen.
+              <span class=fragment>This is almost certainly the sort of testing you are used to.</span>
+            </dd>
+            <dt class=fragment>Property based testing</dt>
+            <dd class=fragment>
+              It would be a bug if this could happen. Does it? 
+            </dd>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Why?</h2>
+          <dl>
+            <dt class=fragment>Example based testing</dt>
+            <dd class=fragment>
+              No better at bug finding than humans are, but <em>reproducible</em>.
+            </dd>
+            <dt class=fragment>Property based testing</dt>
+            <dd class=fragment>
+              Teaches the computer enough of the human's domain knowledge that the computer can use its strengths
+              more effectively. 
+            </dd>
+          </dl>
+        </section>
+
+        <section>
+          <p>
+            <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
+          </p>
+          <p>
+            <a href="https://hypothesis.readthedocs.org/">https://hypothesis.readthedocs.org/</a>
+          </p>
+        </section>
+
+
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
