@@ -34,9 +34,9 @@
     <![endif]-->
 
     <style>
-      .reveal h1 { font-size: 2.5em; } 
-      .reveal h2 { font-size: 1.5em; } 
-      .reveal h2 { font-size: 1.25em; } 
+      .reveal h1 { font-size: 2.5em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h2 { font-size: 1.25em; }
       .reveal pre code {
         padding: 20px 50px 20px 50px !important;
       }
@@ -61,6 +61,31 @@
           </ul>
         </section>
 
+        <section>
+          <h2>Writing correct software is hard</h2>
+
+          <ul>
+            <li class=fragment>Software is complicated.</li>
+            <li class=fragment>Requirements are ever changing.</li>
+            <li class=fragment>Always that one edge case you forgot about.</li>
+            <li class=fragment>Never enough time or people for doing proper QA.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Fortunately...</h2>
+
+          <ul>
+            <li class=fragment>
+              All software gets a free QA department!
+            </li>
+            <li class=fragment>
+              It's large, devious, and will find almost every important bug in your software.
+            </li>
+            <li class=fragment>
+              They're more commonly called "users".
+            </li>
+          </ul>
+        </section>
         <section>
           <h2>Users are great at finding bugs</h2>
 
@@ -167,7 +192,7 @@
             </dd>
             <dt class=fragment>Property based testing</dt>
             <dd class=fragment>
-              It would be a bug if this could happen. Does it? 
+              It would be a bug if this could happen. Does it?
             </dd>
           </dl>
         </section>
@@ -177,14 +202,24 @@
           <dl>
             <dt class=fragment>Example based testing</dt>
             <dd class=fragment>
-              No better at bug finding than humans are, but <em>reproducible</em>.
+              No better at bug finding than humans are, but <em>reproducible</em>. Probably slower the first time,
+              but much faster every time thereafter.
             </dd>
             <dt class=fragment>Property based testing</dt>
             <dd class=fragment>
               Teaches the computer enough of the human's domain knowledge that the computer can use its strengths
-              more effectively. 
+              more effectively.
             </dd>
           </dl>
+        </section>
+
+        <section>
+          <h2>Why?</h2>
+          <ul>
+            <li class=fragment>Saves you time. Writing examples by hand is time consuming, boring, and most often useless.</li>
+            <li class=fragment>Saves you embarrassment (by finding bugs before your users).</li>
+            <li class=fragment>Helps understand your code better by providing a living specification of behaviours.</li>
+          </ul>
         </section>
 
         <section>
