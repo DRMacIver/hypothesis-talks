@@ -132,13 +132,6 @@ Capacity = st.integers(min_value=0)
 def test_returns_a_fitting_result(items, capacity):
     result = solve_knapsack(items, capacity)
     assert sum(size for value, size in result) &lt;= capacity
-
-
-@given(ItemSet, Capacity)
-def test_returns_a_non_empty_result_if_any_fit(items, capacity):
-    assume(any(item[1] &lt;= capacity for item in items))
-    assert len(solve_knapsack(items, capacity)) &gt; 0
-  </code></pre>
   </section>
 
   <section>
