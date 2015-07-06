@@ -216,33 +216,6 @@ test_increasing_weight_of_chosen_item_does_not_improve_things(
   </section>
 
 <section>
-  <pre><code class="python" data-trim>
-@given(ItemSet, Capacity, Item)
-def test_adding_an_item_should_not_make_the_score_worse(
-    items, capacity, item
-):
-    solution = solve_knapsack(items, capacity)
-    base_score = score_solution(solution)
-    items.append(item)
-    new_solution = solve_knapsack(items, capacity)
-    assert score_solution(new_solution) &gt;= base_score
-  </code></pre>
-
-</section>
-
-<section>
-  <pre><code class="python" data-trim>
-Falsifying example:
-
-test_adding_an_item_should_not_make_the_score_worse(
-  items=[(1, 37), (2, 148)],
-  capacity=185,
-  item=(1, 1)
-)
-  </code></pre>
-</section>
-
-<section>
   <h2>In Summary</h2>
   <ul>
     <li>Not knowing the right answer shouldn't stop you from testing your code.</li>
