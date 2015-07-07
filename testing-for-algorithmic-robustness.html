@@ -132,6 +132,7 @@ Capacity = st.integers(min_value=0)
 def test_returns_a_fitting_result(items, capacity):
     result = solve_knapsack(items, capacity)
     assert sum(size for value, size in result) &lt;= capacity
+  </code></pre>
   </section>
 
   <section>
