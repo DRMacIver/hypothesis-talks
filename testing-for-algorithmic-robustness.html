@@ -73,7 +73,6 @@
     <h2>What does that mean?</h2>
     <ul>
       <li class=fragment>We test the behaviour of our algorithms under changes to the data.</li>
-      <li class=fragment>If it shouldn't affect the answer, it doesn't.</li>
       <li class=fragment>If it shouldn't improve the answer, it doesn't.</li>
       <li class=fragment>If it should improve the answer, it does.</li>
     </ul>
@@ -124,17 +123,6 @@ Item = st.tuples(
 ItemSet = st.lists(Item)
 Capacity = st.integers(min_value=0)
   </pre></code>
-  </section>
-
-  <section>
-  <pre><code class="python" data-trim>
-@given(ItemSet, Capacity)
-def test_is_independent_of_order(items, capacity):
-    result = solve_knapsack(items, capacity)
-    items.reverse()
-    result2 = solve_knapsack(items, capacity)
-    assert score_solution(result) == score_solution(result2)
-  </code></pre>
   </section>
 
   <section>
