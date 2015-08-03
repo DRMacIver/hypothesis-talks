@@ -40,6 +40,9 @@
       .reveal pre code {
         padding: 20px 50px 20px 50px !important;
       }
+      img {
+        border: none !important;
+      }
     </style>
   </head>
 
@@ -62,162 +65,228 @@
         </section>
 
         <section>
-          <h2>Writing correct software is hard</h2>
+          <h2>Is your software bug-free?</h2>
 
-          <ul>
-            <li class=fragment>Software is complicated.</li>
-            <li class=fragment>Requirements are ever changing.</li>
-            <li class=fragment>Always that one edge case you forgot about.</li>
-            <li class=fragment>Never enough time or people for doing proper QA.</li>
-          </ul>
-        </section>
-        <section>
-          <h2>Fortunately...</h2>
-
-          <ul>
-            <li class=fragment>
-              All software gets a free QA department!
-            </li>
-            <li class=fragment>
-              It's large, devious, and will find almost every important bug in your software.
-            </li>
-            <li class=fragment>
-              They're more commonly called "users".
-            </li>
-          </ul>
-        </section>
-        <section>
-          <h2>So what's the problem?</h2>
-          <ul>
-            <li class=fragment>Users finding bugs makes you look bad.</li>
-            <li class=fragment>It's also expensive.
-              <ul>
-                <li class=fragment>Potentially costs you a sale.</li>
-                <li class=fragment>It certainly costs you time. Diagnosing user bugs is <em>hard</em>.</li>
-              </ul>
-            </li>
-          </ul>
+          <a href=https://en.wikipedia.org/wiki/List_of_U.S._state_insects><img src=images/bug.jpg /></a>
         </section>
 
         <section>
-          <h2>Why are users so good at this?</h2>
-          <ul>
-            <li class=fragment>They do things you didn't expect.</li>
-            <li class=fragment>There are a lot of them.</li>
-            <li class=fragment>Can we beat them to the punchline?</li>
-            <li class=fragment>Who do we want to do this?</li>
-          </ul>
-        </section>
+          <a href=https://en.wikipedia.org/wiki/Space_Shuttle_orbiter><img src=images/shuttle.jpg></a>
 
+          <p><a href="http://www.fastcompany.com/28121/they-write-right-stuff">They Write The Right Stuff</a></p>
+        </section>
         <section>
-          <h2>Cats are bad at finding bugs</h2>
+          <a href=https://en.wikipedia.org/wiki/Ship><img src=images/ship.jpg></a>
+        </section>
+        <section>
+          <img src=images/bugtracker.png>
+        </section>
+        <section>
+          <img src=images/comicbookguy.jpg>
+        </section>
+        <section>
+          <img src=images/evil.jpg>
+        </section>
+        <section>
           <img src="images/sinister.jpg">
-          <p>Sinister <em>loves</em> finding bugs.</p>
-          <p class=fragment>Unfortunately he struggles with the details.</p>
-        </section>
-
-        <section>
-          <h2>Rabbits are good at finding bugs</h2>
-          <img src=images/rabbit.jpg>
-        </section>
-
-        <section>
-          <h2><strike>Rabbits</strike> Computers are good at finding bugs</h2>
-          <ul>
-            <li class=fragment><a href="http://lcamtuf.coredump.cx/afl/">American Fuzzy Lop</a> is a "security-oriented fuzzer".</li>
-            <li class=fragment>It looks for file inputs that will crash a program.</li>
-            <li class=fragment>It's pretty great at what it does.</li>
-            <li class=fragment>Recently <a href="http://lcamtuf.blogspot.co.uk/2015/04/finding-bugs-in-sqlite-easy-way.html">found bugs in SQLite</a>, which is almost certainly better tested than any software you've written.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>But only in very specific cases</h2>
-          <img src="images/random_number.png">
-          <p>(<a href="https://xkcd.com/221/">https://xkcd.com/221/</a>)</p>
-          <p class=fragment>This function never crashes and is therefore correct. Hurrah!</p>
-        </section>
-
-        <section>
-          <h2>Humans are bad at finding bugs</h2>
-          <ul>
-            <li class=fragment>Slow. <span class=fragment>Try checking each of 1000 pages for errors.</span> <span class=fragment>
-              Not much faster the second time you have to do it.</span></li>
-            <li class=fragment>Easily bored. <span class=fragment>Makes it harder to pay attention.</span>
-              <span class=fragment>Easy to accidentally skip steps.</span></li>
-            <li class=fragment>Easily misguided by intuition. <span class=fragment>"I'm sure this is too simple to have bugs".</span>
-              <span class=fragment>"Yeah but nobody would do <em>that</em>".</span>
-            </li>
-          </ul>
         </section>
         <section>
-          <h2>Computers don't have these problems</h2>
-          <ul>
-            <li class=fragment>Computers are fast.</li>
-            <li class=fragment>Computers can't get bored.</li>
-            <li class=fragment>Computers don't skip steps because they think they're not needed.</li>
-            <li class=fragment>...but computers still can't find most bugs because they don't know what's supposed to happen.</li>
-          </ul>
+          <img src=images/afl.jpg>
+          <p>American Fuzzy Lop is a "security-oriented fuzzer"</p>
+        </section>
+        <section>
+          <img src=images/afl_screen.png>
+        </section>
+        <section>
+          <img src=images/random_number.png>
+        </section>
+        <section>
+          <img src=images/locutus.jpg>
         </section>
 
-        <section>
-          <h2>Cyborgs are <em>great</em> at finding bugs</h2>
-          <ul>
-            <li class=fragment>Intuition and domain knowledge of a human.</li>
-            <li class=fragment>Can offload the boring bits onto their computer half.</li>
-            <li class=fragment>Unfortunately we can't hire cyborgs yet.</li>
-          </ul>
-        </section>
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
 
-        <section>
-          <h2>So what can we do instead?</h2>
 
-          <ul>
-            <li class=fragment>We team up with the computer.</li>
-            <li class=fragment>By working <em>with</em> the computer, we can get most of the advantages of each.</li>
-            <li class=fragment>We write specialized programs to look for bugs for us.</li>
-          </ul>
-        </section>
+def mean(xs):
+    return sum(xs) / len(xs)
 
-        <section>
-          <h2>How?</h2>
-          <dl>
-            <dt class=fragment>Example based testing</dt>
-            <dd class=fragment>
-              Try this thing. This is what you should expect to happen.
-              <span class=fragment>This is almost certainly the sort of testing you are used to.</span>
-            </dd>
-            <dt class=fragment>Property based testing</dt>
-            <dd class=fragment>
-              It would be a bug if this could happen. Can it?
-            </dd>
-          </dl>
-        </section>
 
-        <section>
-          <h2>Why?</h2>
-          <dl>
-            <dt class=fragment>Example based testing</dt>
-            <dd class=fragment>
-              No better at bug finding than humans are, but <em>reproducible</em>. Probably slower the first time,
-              but much faster every time thereafter.
-            </dd>
-            <dt class=fragment>Property based testing</dt>
-            <dd class=fragment>
-              Teaches the computer enough of the human's domain knowledge that the computer can use its strengths
-              more effectively.
-            </dd>
-          </dl>
-        </section>
+@given(st.lists(st.floats()))
+def test_mean(xs):
+    mean(xs)
+</code></pre>
+</section>
 
+<section>
+<pre><code class="python" data-trim>
+ZeroDivisionError: division by zero
+Falsifying example: test_mean(xs=[])
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / (1 + len(xs))
+
+
+@given(st.lists(st.floats()))
+def test_mean(xs):
+    mean(xs)
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+assert 1.0 &lt;= 0.5
+  where 1.0 = min([1.0])
+  and   0.5 = mean([1.0])
+
+Falsifying example: test_mean(xs=[1.0])
+</code></pre></section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert nan &lt;= nan
+  where nan = min([nan])
+  and   nan = mean([nan])
+
+Falsifying example: test_mean(xs=[nan])
+</code></pre></section>
+
+
+
+<section><pre><code class="python" data-trim>
+
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert -inf &lt;= nan
+  where -inf = min([-inf, inf])
+  and   nan = mean([-inf, inf])
+
+Falsifying example: test_mean(xs=[-inf, inf])
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+assert inf &lt;= 8.98846567431158e+307
+  where inf = mean(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+  and   8.98846567431158e+307 = max(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+
+Falsifying example: test_mean(
+  xs=[8.988465674311579e+307, 8.98846567431158e+307])
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(x / len(xs) for x in xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+xs = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+assert 1.0 &lt;= 0.9999999999999999
+  where 1.0 = min([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+  and   0.9999999999999999 = mean([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+
+Falsifying example: test_mean(xs=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return np.array(xs).mean()
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert inf &lt;= 8.98846567431158e+307
+  where inf = mean(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+  and   8.98846567431158e+307 = max(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+
+Falsifying example: test_mean(
+  xs=[8.988465674311579e+307, 8.98846567431158e+307])
+</code></pre></section>
         <section>
-          <h2>Why?</h2>
-          <ul>
-            <li class=fragment>Saves you time. Writing examples by hand is time consuming, boring, and most often useless.</li>
-            <li class=fragment>Saves you embarrassment (by finding bugs before your users).</li>
-            <li class=fragment>Helps understand your code better by providing a living specification of behaviours.</li>
-            <li class=fragment>Improves your code quality by enforcing consistency of behaviour.</li>
-          </ul>
+          <img src=images/scream.jpg>
         </section>
 
         <section>
@@ -225,10 +294,12 @@
             <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
           </p>
           <p>
+            <a href=https://www.patreon.com/DRMacIver>https://www.patreon.com/DRMacIver</a>
+          </p>
+          <p>
             <a href="https://hypothesis.readthedocs.org/">https://hypothesis.readthedocs.org/</a>
           </p>
         </section>
-
 
 
       </div>
