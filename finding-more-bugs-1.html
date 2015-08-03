@@ -90,6 +90,16 @@
           <img src=images/afl_screen.png>
         </section>
         <section>
+<pre><code class="sql" data-trim>
+CREATE VIRTUAL TABLE t0 USING fts4(x,order=DESC);
+INSERT INTO t0(docid,x)VALUES(-1E0,'0(o');
+INSERT INTO t0 VALUES('');
+INSERT INTO t0 VALUES('');
+INSeRT INTO t0 VALUES('o');
+SELECT docid FROM t0 WHERE t0 MATCH'"0*o"'; 
+</code></pre>
+        </section>
+        <section>
           <img src=images/random_number.png>
         </section>
         <section>
