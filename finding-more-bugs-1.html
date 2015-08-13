@@ -151,26 +151,30 @@ def test_mean(xs):
 
 <section>
 <pre><code class="python" data-trim>
-assert 1.0 &lt;= 0.5
-  where 1.0 = min([1.0])
-  and   0.5 = mean([1.0])
-
-Falsifying example: test_mean(xs=[1.0])
-</code></pre></section>
-
-<section>
-<pre><code class="python" data-trim>
 from hypothesis import given
 import hypothesis.strategies as st
 
 
 def mean(xs):
-    return sum(xs) / len(xs)
+    return sum(xs) / (1 + len(xs))
 
 
-@given(st.lists(st.floats(), min_size=1))
+@given(st.lists(st.floats()))
 def test_mean(xs):
-    mean(xs)
+    m = mean(xs)
+    if xs:
+        assert min(xs) &lt;= m &lt;= max(xs)
+</code></pre>
+</section>
+
+
+<section>
+<pre><code class="python" data-trim>
+assert 1.0 &lt;= 0.5
+  where 1.0 = min([1.0])
+  and   0.5 = mean([1.0])
+
+Falsifying example: test_mean(xs=[1.0])
 </code></pre></section>
 
 <section>
