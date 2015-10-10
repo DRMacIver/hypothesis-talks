@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Finding more bugs with less work</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+          <h1>Finding more bugs with less work</h1>
+          <p><a href=https://bit.ly/finding-more-bugs-pycon-uk>https://bit.ly/finding-more-bugs-2</a></p>
+          <p><a href=https://hypothesis.readthedocs.org/>hypothesis.readthedocs.org</a></p>
+        </section>
+
+        <section>
+          <h1>
+            David R. MacIver 
+          </h1>
+          <p>
+            <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
+          </p>
+        </section>
+
+
+        <section>
+          <a href=https://en.wikipedia.org/wiki/List_of_U.S._state_insects><img src=images/bug.jpg /></a>
+        </section>
+        <section>
+          <a href=https://en.wikipedia.org/wiki/Space_Shuttle_orbiter><img src=images/shuttle.jpg></a>
+        </section>
+        <section>
+          <a href=https://en.wikipedia.org/wiki/Ship><img src=images/ship.jpg></a>
+        </section>
+        <section>
+          <img src=images/bugtracker.png>
+        </section>
+        <section>
+          <img src=images/comicbookguy.jpg>
+        </section>
+        <section>
+          <img src=images/evil.jpg>
+        </section>
+        <section>
+        <strong style='font-size: 150px'>?</strong>
+        </section>
+        <section>
+          <a href=https://en.wikipedia.org/wiki/Home_computer><img src="images/computer.jpg"></a>
+        </section>
+        <section>
+          <img src=images/locutus.jpg>
+        </section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats()))
+def test_mean(xs):
+    mean(xs)
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+ZeroDivisionError: division by zero
+Falsifying example: test_mean(xs=[])
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / (1 + len(xs))
+
+
+@given(st.lists(st.floats()))
+def test_mean(xs):
+    mean(xs)
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / (1 + len(xs))
+
+
+@given(st.lists(st.floats()))
+def test_mean(xs):
+    m = mean(xs)
+    if xs:
+        assert min(xs) &lt;= m &lt;= max(xs)
+</code></pre>
+</section>
+
+
+<section>
+<pre><code class="python" data-trim>
+assert 1.0 &lt;= 0.5
+  where 1.0 = min([1.0])
+  and   0.5 = mean([1.0])
+
+Falsifying example: test_mean(xs=[1.0])
+</code></pre></section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert nan &lt;= nan
+  where nan = min([nan])
+  and   nan = mean([nan])
+
+Falsifying example: test_mean(xs=[nan])
+</code></pre></section>
+
+
+
+<section><pre><code class="python" data-trim>
+
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert -inf &lt;= nan
+  where -inf = min([-inf, inf])
+  and   nan = mean([-inf, inf])
+
+Falsifying example: test_mean(xs=[-inf, inf])
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+assert inf &lt;= 8.98846567431158e+307
+  where inf = mean(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+  and   8.98846567431158e+307 = max(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+
+Falsifying example: test_mean(
+  xs=[8.988465674311579e+307, 8.98846567431158e+307])
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return sum(x / len(xs) for x in xs)
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+xs = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+assert 1.0 &lt;= 0.9999999999999999
+  where 1.0 = min([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+  and   0.9999999999999999 = mean([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+
+Falsifying example: test_mean(xs=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+import math
+from hypothesis import given, assume
+import hypothesis.strategies as st
+
+
+def mean(xs):
+    return np.array(xs).mean()
+
+
+@given(st.lists(st.floats(), min_size=1))
+def test_mean(xs):
+    assume(not any(math.isnan(x) or math.isinf(x) for x in xs))
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+assert inf &lt;= 8.98846567431158e+307
+  where inf = mean(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+  and   8.98846567431158e+307 = max(
+    [8.988465674311579e+307, 8.98846567431158e+307])
+
+Falsifying example: test_mean(
+  xs=[8.988465674311579e+307, 8.98846567431158e+307])
+</code></pre></section>
+
+        <section>
+          <img src=images/scream.jpg>
+        </section>
+
+        <section>
+          <img src=images/science.jpg>
+        </section>
+
+        <section>
+          <img src=images/goldberg.gif>
+        </section>
+
+        <section>
+        <pre class=stretch><code class="python">
+
+
+from .models import Collaborator, Project
+from django.test import TestCase
+
+class TestProjectManagement(TestCase):
+    def test_can_add_collaborators_up_to_collaborator_limit(self):
+        project = Project.objects.create(
+            collaborator_limit=3,
+            name="Some project",
+        )
+        alex = Collaborator.objects.create(email="alex@example.com")
+        kim = Collaborator.objects.create(email="kim@example.com")
+        pat = Collaborator.objects.create(email="pat@example.com")
+        project.add_collaborator(alex)
+        project.add_collaborator(kim)
+        project.add_collaborator(pat)
+        self.assertTrue(project.team_contains(alex))
+        self.assertTrue(project.team_contains(kim))
+        self.assertTrue(project.team_contains(pat))
+        </code></pre>
+          <aside class="notes">
+            <p>There is a lot of distracting detail in this test compared to the problem we want to test. Which of the following are significant?</p>
+            <ul>
+              <li>Project name.</li>
+              <li>All collaborator emails are from same domain.</li>
+              <li>Precisely 3 collaborators.</li>
+            </ul>
+    
+          </aside>
+        </section>
+
+    <section>
+        <pre class=stretch><code class="python">
+
+
+from .models import Collaborator, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import just
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=just(3)),
+        models(Collaborator), models(Collaborator), models(Collaborator))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, alex, kim, pat
+    ):
+        project.add_collaborator(alex)
+        project.add_collaborator(kim)
+        project.add_collaborator(pat)
+        self.assertTrue(project.team_contains(alex))
+        self.assertTrue(project.team_contains(kim))
+        self.assertTrue(project.team_contains(pat))
+        </code></pre>
+          <aside class="notes">
+            <p>Still have three collaborators but other distracting features are gone.</p>
+            <p>Note custom test runner for transaction per example.</p>
+          </aside>
+    </section>
+
+
+    <section>
+        <pre class=stretch><code class=python>
+
+
+from .models import Collaborator, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import just, lists
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=just(3)),
+        lists(models(Collaborator), min_size=3, max_size=3))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            project.add_collaborator(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
+        </code></pre>
+          <aside class="notes">
+            <p>Reduce code duplication by generating a list instead but otherwise the same.</p>
+          </aside>
+    </section>
+
+    <section>
+        <pre class=stretch><code class=python>
+
+
+from .models import Collaborator, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given, assume
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(Collaborator), max_size=20))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        assume(len(collaborators) &lt;= project.collaborator_limit)
+        for c in collaborators:
+            project.add_collaborator(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
+    </code></pre>
+          <aside class="notes">
+            <p>Cap of 20 on numbers is arbitrary. Mostly for performance.</p>
+            <p>Note use of assume:</p>
+            <ul>
+              <li>Makes it harder to write useless tests.</li>
+              <li>Hypothesis shapes data away from examples violating assumptions.</li>
+            </ul>
+
+          </aside>
+    </section>
+
+
+    <section>
+        <pre class=stretch><code class=python>
+
+
+from .models import Collaborator, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(Collaborator), max_size=20))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            project.add_collaborator(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
+    </code></pre>
+          <aside class="notes">
+            <p>Now we're going to give Hypothesis free reign and see what breaks. We expect this test to fail right now if things are working correctly.</p>
+          </aside>
+    </section>
+
+    <section>
+        <pre><code data-trim>
+
+Falsifying example:
+
+test_can_add_collaborators_up_to_collaborator_limit(
+    self=TestProjectManagement(),
+    project=Project('', 0),
+    collaborators=[Collaborator(.@.com)]
+)
+Traceback (most recent call last):
+(...)
+raise LimitReached()
+manager.models.LimitReached
+        </code></pre>
+          <aside class="notes">
+            <p>And it does.</p>
+            <p>Unsurprisingly when we remove the requirement that we don't exceed the limit, we exceed the limit.</p>
+          </aside>
+</section>
+
+    <!--  example5 -->
+    <section>
+        <pre class=stretch><code class=python data-trim>
+
+from .models import Collaborator, Project, LimitReached
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(Collaborator), max_size=20))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            if project.at_collaboration_limit():
+                with self.assertRaises(LimitReached):
+                    project.add_collaborator(c)
+                self.assertFalse(project.team_contains(c))
+            else:
+                project.add_collaborator(c)
+                self.assertTrue(project.team_contains(c))
+        </code></pre>
+          <aside class="notes">
+            <p>So now we say that that bit was actually what was meant to happen.</p>
+            <p>While we're in the area, make sure that we're not adding and then erroring.</p>
+          </aside>
+    </section>
+
+    <section>
+        <pre><code data-trim>
+Falsifying example:
+
+test_can_add_collaborators_up_to_collaborator_limit(
+    self=TestProjectManagement(),
+    project=Project('', 1),
+    collaborators=[Collaborator(.@.biz), Collaborator(.@.biz)]
+)
+Traceback (most recent call last):
+(...)
+self.assertFalse(project.team_contains(c))
+AssertionError: True is not false
+        </code></pre>
+  
+        <aside class="notes">
+          <p>When the collaborator was already on the team, </p>
+        </aside>
+
+    </section>
+
+
+    <section>
+        <pre class=stretch><code class=python data-trim>
+
+from .models import Collaborator, Project, LimitReached
+from hypothesis.extra.django import TestCase
+from hypothesis import given
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(Collaborator), max_size=20))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        for c in collaborators:
+            if (
+                project.at_collaboration_limit() and
+                not project.team_contains(c)
+            ):
+                with self.assertRaises(LimitReached):
+                    project.add_collaborator(c)
+                self.assertFalse(project.team_contains(c))
+            else:
+                project.add_collaborator(c)
+                self.assertTrue(project.team_contains(c))
+        </code></pre>
+          <aside class="notes">
+            <p>So lets exclude that case from the first branch and see what happens.</p>
+          </aside>
+    </section>
+
+    <section>
+        <pre><code data-trim>
+Falsifying example:
+
+test_can_add_collaborators_up_to_collaborator_limit(
+    self=TestProjectManagement(),
+    project=Project('', 1),
+    collaborators=[
+      Collaborator(.@.com),
+      Collaborator(.@.com)
+    ]
+)
+Traceback (most recent call last):
+(...)
+raise LimitReached()
+manager.models.LimitReached
+
+        </code></pre>
+        <aside class="notes">
+          <p>Hmm. So adding a collaborator who is already on the project gives you a LimitReached. That's a bit weird. Lets look at the code now.</p>
+        </aside>
+    </section>
+
+<section>
+    <pre><code class=python data-trim>
+def add_collaborator(self, collaborator):
+    if self.at_collaboration_limit():
+        raise LimitReached()
+    self.collaborators.add(collaborator)
+    </code></pre>
+        <aside class="notes">
+          <p>So the function will no-op when adding a collaborator unless you're already at the limit in which case it will error.</p>
+          <p>This is weird and inconsistent.</p>
+        </aside>
+</section>
+
+
+<section>
+    <pre><code class=python data-trim>
+def add_collaborator(self, collaborator):
+    if self.team_contains(collaborator):
+        return
+    if self.at_collaboration_limit():
+        raise LimitReached()
+    self.collaborators.add(collaborator)
+    </code></pre>
+        <aside class="notes">
+          <p>We could fix this by making adding a collaborator on the team always error or never error.</p>
+          <p>We choose the latter.</p>
+        </aside>
+
+</section>
+    <section>
+        <pre><code data-trim>
+.
+----------------------------------------------
+Ran 1 test in 1.833s
+        </code></pre>
+        <aside class="notes">
+          <p>And the tests pass! Take a bow.</p>
+          <p>Note that it took a relatively long time to run and that this is configurable.</p>
+        </aside>
+    </section>
+<section>
+            <img src=images/devilsangels.jpg>
+</section>
+
+<section>
+            <img src=images/future.png>
+</section>
+
+        <section>
+          <p><a href=https://bit.ly/finding-more-bugs-pycon-uk>https://bit.ly/finding-more-bugs-2</a></p>
+          <p><a href=https://hypothesis.readthedocs.org/>hypothesis.readthedocs.org</a></p>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
