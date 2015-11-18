@@ -174,16 +174,6 @@ lists(elements=floats())
   </code></pre></section>
 
   <section><pre><code class=pycon data-trim>
-&gt;&gt;&gt; from hypothesis import find
-&gt;&gt;&gt; find(st.lists(st.floats()), lambda x: sum(x) &gt;= 1)
-[1.0]
-&gt;&gt;&gt; find(st.lists(st.floats(), min_size=5), lambda x: sum(x) &gt;= 1)
-[0.0, 0.0, 0.0, 1.0, 0.0]
-&gt;&gt;&gt; find(st.lists(st.floats(), min_size=5), lambda x: sum(x) &gt; 1)
-[0.0, 2.0, 0.0, 0.0, 0.0]
-  </code></pre></section>
-
-  <section><pre><code class=pycon data-trim>
 &gt;&gt;&gt; nothrees = st.integers().filter(lambda x: x % 3 != 0)
 &gt;&gt;&gt; nothrees.example()
 -94301
