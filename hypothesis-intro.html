@@ -225,11 +225,31 @@ bounded_lists()
 (0, 1, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
   </code></pre></section>
 </section>
-
 <section>
-<section><h2>Hypothetical Django</h2></section>
+<section><h2>Extras</h2></section>
 <section>
-        <pre><code class=python data-trim>
+  <pre><code class=pycon data-trim>
+&gt;&gt;&gt; import hypothesis.extra.datetime as dt
+&gt;&gt;&gt; dt.datetimes()
+datetimes()
+&gt;&gt;&gt; dt.datetimes().example()
+datetime.datetime(155, 3, 21, 17, 0, 58, 128329,
+  tzinfo=&lt;DstTzInfo 'America/Fort_Wayne' LMT-1 day, 18:15:00 STD&gt;)
+  </code></pre></section>
+<section><pre><code class=pycon data-trim>
+&gt;&gt;&gt; import hypothesis.extra.fakefactory as ff
+&gt;&gt;&gt; ff.fake_factory('email').example()
+u'.@.com'
+&gt;&gt;&gt; ff.fake_factory('email').example()
+u'qsatterfield@dubuque.com'
+&gt;&gt;&gt; ff.fake_factory('name').example()
+u'Sillanp\xe4\xe4, Reijo'
+&gt;&gt;&gt; ff.fake_factory('name', locale='ja_JP').example()
+u'\u52a0\u7d0d \u3055\u3086\u308a'
+&gt;&gt;&gt; ff.fake_factory('name', locales=['en_US', 'en_GB']).example()
+u'Landyn Bergnaum'
+</code></pre></section>
+<section><pre><code class=python data-trim>
 
 from .models import Collaborator, Project
 from hypothesis.extra.django import TestCase
@@ -248,8 +268,7 @@ class TestProjectManagement(TestCase):
         for c in collaborators:
             project.add_user(c)
             self.assertTrue(project.team_contains(c))
-    </code></pre>
-</section>
+</code></pre></section>
 </section>
 
 <section>
