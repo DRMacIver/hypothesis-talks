@@ -151,6 +151,97 @@ def test_encoding_round_trips(encoding, txt):
   </code></pre></section>
 </section>
 
+
+  <section><pre><code class=python data-trim>
+from hypothesis import given, strategies as st, assume, example
+import pytest
+
+
+@pytest.mark.parametrize('encoding', ['utf-8', 'utf-16', 'ascii'])
+@example(txt=u'abc')
+@given(txt=st.text())
+def test_encoding_round_trips(encoding, txt):
+    try:
+        assert txt == txt.encode(encoding).decode(encoding)
+    except UnicodeEncodeError:
+        assume(False)
+  </code></pre></section>
+
+  <section><pre><code class=python data-trim>
+# coding: utf-8
+from hypothesis import given, strategies as st, assume, example
+import pytest
+
+
+@pytest.mark.parametrize('encoding', ['utf-8', 'utf-16', 'ascii'])
+@example(txt=u'abc')
+@example(txt=u'☃')
+@given(txt=st.text())
+def test_encoding_round_trips(encoding, txt):
+    try:
+        assert txt == txt.encode(encoding).decode(encoding)
+    except UnicodeEncodeError:
+        assume(False)
+  </code></pre></section>
+
+  <section><pre><code data-trim>
+UnsatisfiedAssumption: Unsatisfied assumption
+Falsifying example: test_encoding_round_trips(
+  encoding='ascii', txt=u'\u2603'
+)
+  </code></pre></section>
+</section>
+
+<section>
+<section><h2>Setting settings</h2></settings>
+</section>
+
+  <section><pre><code class=python data-trim>
+from hypothesis import given, strategies as st, assume, Settings
+
+
+@given(txt=st.text(), settings=Settings(
+  max_examples=5
+))
+def test_encoding_round_trips(txt):
+  assert txt == txt.encode('utf-8').decode('utf-8')
+  </code></pre></section>
+</section>
+
+  <section><pre><code class=python data-trim>
+from hypothesis import given, strategies as st, assume, Settings
+
+
+with Settings(max_examples=5):
+
+    @given(txt=st.text())
+    def test_encoding_round_trips(txt):
+        assert txt == txt.encode('utf-8').decode('utf-8')
+  </code></pre></section>
+
+  <section><pre><code class=python data-trim>
+from hypothesis import given, strategies as st, assume, Settings
+
+Settings.register_profile('quick', Settings(max_examples=5))
+Settings.load_profile('quick')
+
+@given(txt=st.text())
+def test_encoding_round_trips(txt):
+    assert txt == txt.encode('utf-8').decode('utf-8')
+  </code></pre></section>
+
+
+  <section><pre><code class=python data-trim>
+import os
+
+Settings.define_profile('quick', Settings(max_examples=5))
+Settings.define_profile('ci', Settings(max_examples=0))
+Settings.load_profile(os.getenv('HYPOTHESIS_PROFILE', 'default'))
+  </code></pre></section>
+
+
+
+</section>
 <section>
 <section><h2>The means of (data) production</h2></section>
 
