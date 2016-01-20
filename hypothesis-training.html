@@ -298,6 +298,33 @@ def test_bounds(ls, x):
 </code></pre>
 </section>
 
+<section><pre><code class=python data-trim>
+@given(st.lists(st.integers()).map(sorted), st.integers())
+def test_insert_is_sorted(ls, v):
+    ls.insert(binary_search(ls, v), v)
+    assert ls == sorted(ls)
+</code></pre>
+</section>
+
+<section><pre><code class=python data-trim>
+@given(st.lists(st.integers()).map(sorted), st.integers())
+def test_insert_earlier_is_not_sorted(ls, v):
+    i = binary_search(ls, v)
+    for j in range(i):
+        ls2 = list(ls)
+        ls2.insert(j, v)
+        assert ls2 != sorted(ls2)
+</code></pre>
+</section>
+
+<section><pre><code class=python data-trim>
+@given(st.lists(st.integers()).map(sorted), st.integers())
+def test_insert_does_not_change_insert(ls, v):
+    i = binary_search(ls, v)
+    ls.insert(i, v)
+    assert binary_search(ls, v) == i
+</code></pre>
+</section>
 </section>
 
 <section>
