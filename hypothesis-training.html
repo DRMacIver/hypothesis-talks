@@ -199,6 +199,29 @@ test_maths.py:2: AssertionError
 
 ===================== 1 failed in 0.00 seconds ======================</span>
 </pre>
+</section>
+
+<section>
+<pre><code class=bash data-trim>
+python -m pytest --help
+</code></pre>
+
+<pre class=output>
+usage: pytest.py [options] [file_or_dir] [file_or_dir] [...]
+
+positional arguments:
+  file_or_dir
+
+general:
+  -k EXPRESSION  only run tests which match the given substring
+                 expression. An expression is a python evaluatable
+                 expression where all names are substring-matched
+                 against test names and their parent classes. Example:
+                 -k 'test_method or test other' matches all test
+                 functions and classes whose name contains
+
+...
+</pre>
 
 </section>
 </section>
