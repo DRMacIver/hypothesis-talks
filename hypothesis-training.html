@@ -361,6 +361,58 @@ def test_bounds(hs, ms, ch, cm):
 </code></pre>
 </section>
 
+<section><pre><code class=python data-trim>
+@given(
+  st.integers(0, 23) | st.none(), st.integers(0, 59) | st.none(), 
+  st.integers(0, 23), st.integers(0, 59)) 
+def test_answer_is_admissible(hs, ms, ch, cm):
+    h, m = cron(hs, ms, ch, cm)
+    if hs is not None:
+        assert hs == h
+    if ms is not None:
+        assert ms == m
+</code></pre>
+</section>
+
+
+<section><pre><code class=python data-trim>
+@given(
+  st.integers(0, 23) | st.none(), st.integers(0, 59) | st.none(), 
+  st.integers(0, 23), st.integers(0, 59)) 
+def test_widening_produces_earlier_answer(hs, ms, h, m):
+    when = cron(hs, ms, h, m)
+    assert cron(None, ms, h, m) &lt;= when
+    assert cron(hs, None, h, m) &lt;= when
+</code></pre>
+</section>
+
+
+<section><pre class=stretch><code class=python data-trim>
+@given(
+  st.integers(0, 23) | st.none(), st.integers(0, 59) | st.none(), 
+  st.integers(0, 23), st.integers(0, 59)) 
+def test_agrees_with_brute_force_solution(hs, ms, h, m):
+    if hour_spec is None:
+        allowed_hours = range(24)
+    else:
+        allowed_hours = [hour_spec]
+    if minute_spec is None:
+        allowed_minutes = range(60)
+    else:
+        allowed_minutes = [minute_spec]
+    times = [
+        (h, m) for h in allowed_hours for m in allowed_minutes
+    ]
+    later_times = [
+        t for t in times if (current_hour, current_minute) &lt;= t
+    ]
+    if later_times:
+        assert cron(hs, ms, h, m) == later_times[0]
+    else:
+        assert cron(hs, ms, h, m) == times[0]
+</code></pre>
+</section>
+
 </section>
 
 <section>
