@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>A whirlwind tour of Hypothesis</title>
+    <title>Thinking in property based tests</title>
 
     <meta name="description" content="Making your tests do the work for you.">
     <meta name="author" content="David R. MacIver">
@@ -467,9 +467,86 @@ def test_flood_fill_fills_point(problem):
 </code></pre>
 </section>
 
+
+<section><pre><code class=python data-trim>
+@given(Problems)
+def test_flood_fill_fills_adjacent_points(problem):
+    grid, i, j = problem
+    m = len(grid)
+    n = len(grid[0])
+    flood_fill(grid, i, j)
+    for u, v in [
+      (i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)
+    ]:
+        if 0 &lt;= u &lt; m and 0 &lt;= v &lt; n:
+            assert grid[u][v]
+</code></pre>
 </section>
 
-<section>
+<section><pre><code class=python data-trim>
+def count_grid(grid):
+    return sum(l.count(True) for l in grid)
+
+@given(Problems)
+def test_flood_fill_increases_count(problem):
+    grid, i, j = problem
+    count = count_grid(grid)
+    flood_fill(grid, i, j)
+    assert count_grid(grid) &gt;= count + 1
+</code></pre>
+</section>
+
+<section><pre><code class=python data-trim>
+def transpose(grid):
+    m = len(grid)
+    n = len(grid[0])
+    return [[grid[i][j] for i in range(m)] for j in range(n)]
+
+
+@given(Problems)
+def test_commutes_with_transposing(problem):
+    grid, i, j = problem
+    grid2 = transpose(grid)
+
+    flood_fill(grid, i, j)
+    flood_fill(grid2, j, i)
+    assert grid == transpose(grid2)
+</code></pre></section>
+
+
+
+<section><pre><code class=python data-trim>
+@given(Problems)
+def test_flood_filling_from_a_filled_point_is_the_same(problem):
+    grid, i, j = problem
+    original = deepcopy(grid)
+    flood_fill(grid, i, j)
+    for u in range(len(original)):
+        for v in range(len(original[u])):
+            if grid[u][v] and not original[u][v]:
+                newgrid = deepcopy(original)
+                flood_fill(newgrid, u, v)
+                assert newgrid == grid
+
+</code></pre></section>
+
+<section><pre><code class=python data-trim>
+@given(Problems)
+def test_flood_filling_from_unfilled_does_not_return(problem):
+    grid, i, j = problem
+    original = deepcopy(grid)
+    flood_fill(grid, i, j)
+    for u in range(len(original)):
+        for v in range(len(original[u])):
+            if not grid[u][v]:
+                newgrid = deepcopy(original)
+                flood_fill(newgrid, u, v)
+                assert not newgrid[i][j]
+</code></pre></section>
+
+
+
+</section>
 <section>
 <h2>And that's a wrap</h2>
 <p class=fragment>Any questions?</p>
