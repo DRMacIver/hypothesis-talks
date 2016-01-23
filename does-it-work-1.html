@@ -190,8 +190,8 @@ test_sort.py::test_example3 <span style="color: green">PASSED</span>
 <section>
 <pre><code class="python" data-trim>
 def is_sorted(ls):
-    return any(
-        ls[i] &lt; ls[i - 1]
+    return all(
+        ls[i - 1] &lt;= ls[i]
         for i in range(1, len(ls))
     )
 </code></pre>
