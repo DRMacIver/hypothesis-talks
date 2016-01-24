@@ -86,7 +86,7 @@
 </section>
 
 <section><pre><code class="python" data-trim>
-def sort_in_place(ls):
+def bubble_sort(ls):
     for i in range(1, len(ls)):
         if ls[i - 1] &gt; ls[i]:
             ls[i - 1], ls[i] = ls[i], ls[i - 1]
@@ -94,7 +94,7 @@ def sort_in_place(ls):
 
 def sort(ls):
     result = list(ls)
-    sort_in_place(result)
+    bubble_sort(result)
     return result
     
 </code></pre></section>
@@ -129,7 +129,7 @@ E     + [1, 2, 3]
 </pre></section>
 
 <section><pre><code class="python" data-trim>
-def sort_in_place(ls):
+def bubble_sort(ls):
     for _ in range(2):
         for i in range(1, len(ls)):
             if ls[i - 1] &gt; ls[i]:
@@ -168,7 +168,7 @@ E     ?  +++
 </section>
 
 <section><pre><code class="python" data-trim>
-def sort_in_place(ls):
+def bubble_sort(ls):
     needs_sorting = True
     while needs_sorting:
         needs_sorting = False
@@ -362,7 +362,7 @@ test_sort.py::test_merging_sorted_lists_gives_right_number <span style="color: g
 <section>
 <pre><code class="python" data-trim>
 
-def sort_in_place(ls):
+def bubble_sort(ls):
     ls.clear()
 
 def merge_sort(ls):
@@ -406,7 +406,7 @@ Falsifying example: test_sorted_list_has_same_length(ls=[0])
 <section>
 <pre><code class="python" data-trim>
 
-def sort_in_place(ls):
+def bubble_sort(ls):
     for i in range(len(ls)):
         ls[i] = 0
 
@@ -446,7 +446,7 @@ Falsifying example:
 
 
 <section><pre><code class="python" data-trim>
-def sort_in_place(ls):
+def bubble_sort(ls):
     needs_sorting = True
     while needs_sorting:
         needs_sorting = False
