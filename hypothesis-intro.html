@@ -133,17 +133,14 @@ def test_encoding_round_trips(encoding, txt):
 
 
   <section><pre><code class=python data-trim>
-from hypothesis import given, strategies as st, assume, Settings
+from hypothesis import given, strategies as st, assume, settings, seed
 import pytest
-from random import Random
 
 
 @pytest.mark.parametrize('encoding', ['utf-8', 'utf-16', 'ascii'])
-@given(
-    txt=st.text(),
-    settings=Settings(max_examples=5),
-    random=Random(10)
-)
+@given(txt=st.text())
+@seed(10)
+@settings(max_examples=5),
 def test_encoding_round_trips(encoding, txt):
     try:
         assert txt == txt.encode(encoding).decode(encoding)
@@ -215,21 +212,20 @@ def test_encoding_round_trips(encoding, txt):
 <section><h2>Setting settings</h2></section>
 
   <section><pre><code class=python data-trim>
-from hypothesis import given, strategies as st, assume, Settings
+from hypothesis import given, strategies as st, assume, settings
 
 
-@given(txt=st.text(), settings=Settings(
-  max_examples=5
-))
+@given(txt=st.text())
+@settings(max_examples=5)
 def test_encoding_round_trips(txt):
   assert txt == txt.encode('utf-8').decode('utf-8')
   </code></pre></section>
 
   <section><pre><code class=python data-trim>
-from hypothesis import given, strategies as st, assume, Settings
+from hypothesis import given, strategies as st, assume, settings
 
 
-with Settings(max_examples=5):
+with settings(max_examples=5):
 
     @given(txt=st.text())
     def test_encoding_round_trips(txt):
@@ -237,10 +233,10 @@ with Settings(max_examples=5):
   </code></pre></section>
 
   <section><pre><code class=python data-trim>
-from hypothesis import given, strategies as st, assume, Settings
+from hypothesis import given, strategies as st, assume, settings
 
-Settings.register_profile('quick', Settings(max_examples=5))
-Settings.load_profile('quick')
+settings.register_profile('quick', settings(max_examples=5))
+settings.load_profile('quick')
 
 @given(txt=st.text())
 def test_encoding_round_trips(txt):
@@ -251,9 +247,9 @@ def test_encoding_round_trips(txt):
   <section><pre><code class=python data-trim>
 import os
 
-Settings.define_profile('quick', Settings(max_examples=5))
-Settings.define_profile('ci', Settings(max_examples=0))
-Settings.load_profile(os.getenv('HYPOTHESIS_PROFILE', 'default'))
+settings.define_profile('quick', settings(max_examples=5))
+settings.define_profile('ci', settings(max_examples=0))
+settings.load_profile(os.getenv('HYPOTHESIS_PROFILE', 'default'))
   </code></pre></section>
 
 </section>
