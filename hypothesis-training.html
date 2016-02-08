@@ -381,6 +381,7 @@ def test_answer_is_admissible(hs, ms, ch, cm):
   st.integers(0, 23), st.integers(0, 59)) 
 def test_widening_produces_earlier_answer(hs, ms, h, m):
     when = cron(hs, ms, h, m)
+    assume(when &gt; (h, m))
     assert cron(None, ms, h, m) &lt;= when
     assert cron(hs, None, h, m) &lt;= when
 </code></pre>
