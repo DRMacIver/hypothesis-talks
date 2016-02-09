@@ -491,29 +491,6 @@ while n_examples &lt; 100 and data.status != Status.INTERESTING:
         
 </code></pre></section>
 
-<section><pre><code class=python data-trim>
-data = TestData.for_generation(rnd)
-n_examples = 0
-while n_examples &lt; 100:
-    improved = False
-    mutator = new_mutator(rnd)
-    for _ in range(min(10, 100 - n_examples)):
-        newdata = mutator(data)
-        test_function(newdata)
-        n_example += 1
-        if newdata.status &gt; data.status:
-            improved = True
-            data = newdata
-            break
-        elif data.status == newdata.status:
-            data = newdata
-        elif data.status &gt; newdata.status:
-          break
-    if not improved:
-        data = TestData.for_generation(rnd)
-        
-</code></pre></section>
-
 <section>
 <h2>Not mentioned</h2>
 <ul>
