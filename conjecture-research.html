@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>A QuickCheck for everyone</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+      .reveal .slides pre code {
+          line-height: 1.25 !important;
+          font-size: 13pt !important;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+
+<section>
+  <h1>Conjecture</h1>
+  <h2>A QuickCheck for everyone</h2>
+</section>
+
+<section>
+<h2>A very 80s vision of the future</h2>
+<ul>
+  <li>The Monkey - 1983</li>
+  <li class=fragment>QuickCheck - 2001</li>
+  <li class=fragment>American Fuzzy Lop - 2014ish?</li>
+  <li class=fragment>Hypothesis - 2015</li>
+</ul>
+</section>
+
+<section>
+<h2>What is fuzzing?</h2>
+</section>
+
+<section>
+
+<h2>What is QuickCheck?</h2>
+</section>
+
+<section>
+<pre><code class=haskell data-trim>
+import Data.List (sort)
+import Test.QuickCheck (quickCheck)
+
+propSorted :: [Int] -&gt; Bool
+propSorted = isSorted . sort
+  where
+    isSorted [] = True
+    isSorted [_] = True
+    isSorted (x:y:rest) = (x <= y) && isSorted (y:rest)
+
+main = quickCheck propSorted
+</code></pre>
+</section>
+
+<section>
+<h2>Essential features</h2>
+<ul>
+<li>Generate random examples</li>
+<li>Reduce failing examples to simpler ones</li>
+<li>Print minimized failing example</li>
+<li>Save failing examples</li>
+</ul>
+</section>
+
+<section>
+<pre><code class=haskell data-trim>
+data Result = MkResult{ ... }
+
+data Rose a = MkRose a [Rose a] | IORose (IO (Rose a))
+newtype Prop = MkProp{ unProp :: Rose Result }
+newtype Property = MkProperty { unProperty :: Gen Prop }
+
+class Testable prop where
+  property :: prop -&gt; Property
+
+class Arbitrary a where
+  arbitrary :: Gen a
+  shrink :: a -&gt; [a]
+
+instance (Arbitrary a, Show a, Testable prop) =&gt; Testable (a -&gt; prop) where
+  property f = forAllShrink arbitrary shrink f
+</code></pre>
+</section>
+
+<section>
+<ul>
+<li>Very statically typed</li>
+<li>Relies a lot on immutable data.</li>
+<li>Mostly works well on algebraic data types.</li>
+</ul>
+</section>
+
+<section>
+<h2>What is Hypothesis?</h2>
+</section>
+
+<section>
+<pre><code class=python data-trim>
+from hypothesis import given
+from hypothesis.strategies import lists, integers
+
+def is_sorted(ls):
+  return all(ls[i] &lt;= ls[i + 1] for i in range(len(ls) - 1))
+
+@given(lists(integers()))
+def test_sort_is_sorted(ls):
+    ls.sort()
+    assert is_sorted(ls)
+</code></pre>
+</section>
+
+<section>
+<h2>Hypothesis</h2>
+<ul>
+  <li>Python rather than Haskell.</li>
+  <li>Works well with mutable data.</li>
+  <li>Mostly works well on flat data types.</li>
+  <li>Heavily mutable internally</li>
+</ul>
+</section>
+
+<section><pre><code class=python data-trim>
+class SearchStrategy(object):
+    def validate(self):
+        pass
+    def draw_parameter(self, random):
+        ...
+    def draw_template(self, random, parameter_value):
+        ...
+    def reify(self, template):
+        ...
+    def simplifiers(self, random, template):
+        ...
+    def to_basic(self, template):
+        ...
+    def from_basic(self, template):
+        ...
+    template_upper_bound = Infinity
+
+</code></pre>
+</section>
+
+<section>
+<h2>Hypothesis &gt; QuickCheck</h2>
+<ul>
+  <li>Failing examples are saved post-minimization</li>
+  <li>Smarter data generation</li>
+  <li>Smarter shrinking</li>
+  <li>Adaptive assume</li>
+  <li>Lots of boring engineering detail (very useful, not very exciting)</li>
+</ul>
+</section>
+
+<section>
+<h2>Hypothesis &lt; QuickCheck</h2>
+<ul>
+  <li>A few missing features (that I didn't think were very important)</li>
+  <li>A fair bit slower where it doesn't manage to win on algorithmic improvements</li>
+  <li>Doesn't deal with accidentally large examples very well</li>
+  <li>Drastically more complicated internally</li>
+</ul>
+</section>
+
+<section>
+<h2>What is Conjecture?</h2>
+</section>
+ 
+<section>
+<ul>
+  <li>Hypothesis but better</li>
+  <li>A universal intermediate representation.</li>
+  <li>A simpler to use imperative API</li>
+  <li>Solves a number of technical challenges Hypothesis had</li>
+  <li>Unimaginably easier to port to other languages</li>
+</ul>
+</section>
+
+<section>
+<pre><code class=python data-trim>
+from hypothesis import conjecture
+from hypothesis.strategies import lists, integers
+
+def is_sorted(ls):
+  return all(ls[i] &lt;= ls[i + 1] for i in range(len(ls) - 1))
+
+@conjecture
+def test_sort_is_sorted(data):
+    ls = data.draw(lists(integers()))
+    ls.sort()
+    assert is_sorted(ls)
+</code></pre></section>
+ 
+</section>
+
+<section>
+<pre><code class=python data-trim>
+class Overflow(Exception):
+    pass
+
+class TestData(object):
+    def __init__(self, buffer):
+        self.buffer = buffer
+        self.index = 0
+
+    def draw_bytes(self, n):
+        if self.index + n &gt; len(self.buffer):
+            raise Overflow()
+        result = self.buffer[self.index:self.index+n]
+        self.index += n
+        return result
+
+    def draw(self, strategy):
+        return strategy.do_draw(self)
+</code></pre></section>
+ 
+
+<section>
+<pre><code class=python data-trim>
+class SearchStrategy(object):
+    def do_draw(self, data):
+        raise NotImplementedError()
+
+class integers(SearchStrategy): 
+    def do_draw(self, data): 
+        byt = data.draw_bytes(8)
+        r = int.from_bytes(byt, 'big', signed=False)
+        negative = r &amp; sign_mask
+        r &amp;= (~sign_mask)
+        if negative:
+            r = -r
+        return r
+</code></pre></section>
+
+<section>
+<pre><code class=python data-trim>
+&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 0, 0])).draw(sb.integers())
+0
+&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 0, 1])).draw(integers())
+1
+&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 255, 1])).draw(sb.integers())
+65281
+&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 0, 1])).draw(sb.integers())
+-1
+&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 255, 1])).draw(sb.integers())
+-65281
+
+
+</code></pre>
+</section>
+ 
+<section>
+<pre><code class=python data-trim>
+class lists(SearchStrategy): 
+    def __init__(self, elements):
+        self.elements = elements
+
+    def do_draw(self, data): 
+        result = []
+        while data.draw_bytes(1)[0] &amp; 1:
+            result.append(data.draw(self.elements))
+        return result
+</code></pre></section>
+
+<section>
+<pre><code class=python data-trim>
+&gt;&gt;&gt; TestData(bytes([0])).draw(lists(integers()))
+[]
+
+&gt;&gt;&gt; TestData(bytes([1, 0, 0, 0, 0, 0, 0, 0, 0, 0])).draw(lists(integers()))
+[0]
+
+&gt;&gt;&gt; TestData(
+...     bytes([1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+...            0, 0, 0, 0, 0, 0, 0, 0, 0, 0])).draw(lists(integers()))
+[0, 0]
+
+</code></pre>
+</section>
+<section>
+<pre><code class=python data-trim>
+import random
+
+def example(strategy):
+    return TestData(
+        random.getrandbits(1024 * 8).to_bytes(1024, 'big')
+    ).draw(strategy)
+</code></pre>
+<pre><code class=python data-trim>
+&gt;&gt;&gt; for _ in range(10): print(sb.example(sb.lists(sb.integers())))
+... 
+[610730464787854814, 1844111915390366750]
+[]
+[]
+[-7046874123041017822, -1878478497920643405, -1865487129549889089]
+[]
+[]
+[-5562855636188376268]
+[92220061405522026]
+[1450752332715373080, -1719059671930635420]
+[]
+</code></pre>
+</section>
+
+<section>
+<pre><code class=python data-trim>
+class TestData(object):
+    def __init__(self, max_length, draw_bytes):
+        self.max_length = max_length
+        self._draw_bytes = draw_bytes
+        self.buffer = bytearray()
+
+    @property
+    def index(self):
+        return len(self.buffer)
+
+    def draw_bytes(self, n, distribution=uniform):
+        if self.index + n &gt; self.max_length:
+            raise Overflow()
+        result = self._draw_bytes(self, n, distribution)
+        assert len(result) == n
+        self.buffer.extend(result)
+        return result
+</code></pre></section>
+
+<section>
+<pre><code class=python data-trim>
+class TestData(object):
+    @classmethod
+    def for_buffer(self, buffer):
+        return TestData(
+            max_length=len(buffer),
+            draw_bytes=(
+                lambda data, n, distribution: buffer[data.index:data.index + n]
+        ))
+
+    @classmethod
+    def for_generation(self, random):
+        return TestData(
+            max_length=8 * 1024, 
+            draw_bytes=lambda data, n, distribution: distribution(random, n)
+        )
+</code></pre></section>
+
+
+<section>
+<h2>How does shrinking actually work?</h2>
+</section>
+
+<section>
+<h2>Getting good data</h2>
+</section>
+
+<section>
+<pre><code class=python data-trim>
+class Status(IntEnum):
+    OVERRUN = 0
+    INVALID = 1
+    VALID = 2
+    INTERESTING = 3
+
+class StopTest(Exception):
+    pass
+</code></pre></section>
+
+<section><pre><code class=python data-trim>
+class TestData(object):
+    def __init__(self, max_length, draw_bytes):
+        self.status = Status.VALID
+        ...
+
+    def reject(self):
+        self.status = Status.INVALID
+        raise StopTest()
+
+    def mark_interesting(self):
+        self.status = Status.INTERESTING
+        raise StopTest()
+
+    def draw_bytes(self, n, distribution=uniform):
+        if len(self.buffer)+ n &gt; self.max_length:
+            self.status = Status.OVERRUN
+            raise StopTest()
+        ...
+</code></pre></section>
+
+<section>
+<pre><code class=python data-trim>
+from hypothesis import conjecture
+from hypothesis.strategies import lists, integers
+
+def is_sorted(ls):
+  return all(ls[i] &lt;= ls[i + 1] for i in range(len(ls) - 1))
+
+@conjecture
+def test_sort_is_sorted(data):
+    ls = data.draw(lists(integers()))
+    if len(set(ls)) &lt;= 1:
+        data.mark_invalid()    
+    ls.sort()
+    assert is_sorted(ls)
+</code></pre></section>
+ 
+</section>
+
+
+
+
+<section><pre><code class=python data-trim>
+def find_interesting_buffer(test_function):
+    rnd = Random()
+    for _ in range(100):
+        data = TestData.for_generation(rnd)
+        test_function(data)
+        if data.status == Status.INTERESTING:
+            break
+    if data.status != Status.INTERESTING:
+        return None
+
+    def is_interesting(buf):
+        data = TestData.for_buffer(buf)
+        test_function(data)
+        return data.status == Status.INTERESTING
+
+    return shrink_buffer(data.buffer, is_interesting)
+</code></pre></section>
+
+<section><pre><code class=python data-trim>
+data = TestData.for_generation(rnd)
+n_examples = 0
+while n_examples &lt; 100 and data.status != Status.INTERESTING:
+    improved = False
+    for _ in range(min(10, 100 - n_examples)):
+        newdata = TestData.mutated(data, rnd)
+        test_function(newdata)
+        n_example += 1
+        if newdata.status &gt; data.status:
+            improved = True
+            data = newdata
+            break
+        elif data.status == newdata.status:
+            data = newdata
+    if not improved:
+        data = TestData.for_generation(rnd)
+        
+</code></pre></section>
+
+<section><pre><code class=python data-trim>
+data = TestData.for_generation(rnd)
+n_examples = 0
+while n_examples &lt; 100:
+    improved = False
+    mutator = new_mutator(rnd)
+    for _ in range(min(10, 100 - n_examples)):
+        newdata = mutator(data)
+        test_function(newdata)
+        n_example += 1
+        if newdata.status &gt; data.status:
+            improved = True
+            data = newdata
+            break
+        elif data.status == newdata.status:
+            data = newdata
+        elif data.status &gt; newdata.status:
+          break
+    if not improved:
+        data = TestData.for_generation(rnd)
+        
+</code></pre></section>
+
+<section>
+<h2>Not mentioned</h2>
+<ul>
+<li>Details of shrinking</li>
+<li>Details of specific mutations</li>
+<li>Incremental test corpus management</li>
+<li>Future plans for glass box testing</li>
+</ul>
+</section>
+
+
+      </div>
+    </div>
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
