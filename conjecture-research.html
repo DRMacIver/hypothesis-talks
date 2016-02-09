@@ -280,15 +280,15 @@ class integers(SearchStrategy):
 
 <section>
 <pre><code class=python data-trim>
-&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 0, 0])).draw(sb.integers())
+&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 0, 0])).draw(integers())
 0
 &gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 0, 1])).draw(integers())
 1
-&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 255, 1])).draw(sb.integers())
+&gt;&gt;&gt; TestData(bytes([0, 0, 0, 0, 0, 0, 255, 1])).draw(integers())
 65281
-&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 0, 1])).draw(sb.integers())
+&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 0, 1])).draw(integers())
 -1
-&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 255, 1])).draw(sb.integers())
+&gt;&gt;&gt; TestData(bytes([128, 0, 0, 0, 0, 0, 255, 1])).draw(integers())
 -65281
 
 
@@ -333,7 +333,7 @@ def example(strategy):
     ).draw(strategy)
 </code></pre>
 <pre><code class=python data-trim>
-&gt;&gt;&gt; for _ in range(10): print(sb.example(sb.lists(sb.integers())))
+&gt;&gt;&gt; for _ in range(10): print(example(lists(integers())))
 ... 
 [610730464787854814, 1844111915390366750]
 []
