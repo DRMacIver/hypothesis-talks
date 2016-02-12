@@ -285,8 +285,9 @@ class integers(SearchStrategy):
     def do_draw(self, data): 
         byt = data.draw_bytes(8)
         r = int.from_bytes(byt, 'big', signed=False)
-        negative = r &amp; sign_mask
-        r &amp;= (~sign_mask)
+        sign_bit = 2 ** 63
+        negative = r &amp; sign_bit
+        r &amp;= (~sign_bit)
         if negative:
             r = -r
         return r
@@ -364,6 +365,9 @@ def example(strategy):
 
 <section>
 <pre><code class=python data-trim>
+def uniform(random, n):
+    return bytes(random.randint(0, 255) for _ in range(n))
+
 class TestData(object):
     def __init__(self, max_length, draw_bytes):
         self.max_length = max_length
@@ -382,6 +386,38 @@ class TestData(object):
         self.buffer.extend(result)
         return result
 </code></pre></section>
+
+<section>
+<pre><code class=python data-trim>
+class integers(SearchStrategy): 
+    def do_draw(self, data): 
+        sign_bit = 2 ** 63
+        def zero_biased(random, n):
+            assert n == 8
+            if random.randint(0, 1):
+                r = random.randint(0, 100)
+                if random.randint(0, 1):
+                    r |= sign_bit
+                return r.to_bytes(n, 'big')
+            else:
+                return uniform(random, n)
+        byt = data.draw_bytes(8)
+        r = int.from_bytes(byt, 'big', signed=False)
+        negative = r &amp; sign_bit
+        r &amp;= (~sign_bit)
+        if negative:
+            r = -r
+        return r
+</code></pre></section>
+
+
+<section>
+<pre><code class=python data-trim>
+&gt;&gt;&gt; [sb.example(sb.integers()) for _ in range(5)]
+[-77, 69, 9, -11, 8484517054902455138, -8]
+</code></pre></section>
+
+
 
 <section>
 <pre><code class=python data-trim>
