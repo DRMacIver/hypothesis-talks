@@ -373,11 +373,9 @@ class TestData(object):
         self.max_length = max_length
         self._draw_bytes = draw_bytes
         self.buffer = bytearray()
-
     @property
     def index(self):
         return len(self.buffer)
-
     def draw_bytes(self, n, distribution=uniform):
         if self.index + n &gt; self.max_length:
             raise Overflow()
