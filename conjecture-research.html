@@ -104,8 +104,8 @@ main = quickCheck propSorted
 <li>Generate random structured examples</li>
 <li>Reduce failing examples to simpler ones</li>
 <li>Print minimized failing example</li>
-<li>Save failing examples</li>
-<li class=fragment>(Conditional tests)</li>
+<li class=fragment>Save failing examples</li>
+<li class=fragment>Conditional tests?</li>
 </ul>
 </section>
 
@@ -540,6 +540,14 @@ while n_examples &lt; 100 and data.status != Status.INTERESTING:
         data = TestData.for_generation(rnd)
         
 </code></pre></section>
+
+<section>
+<ul>
+<li>Generate an example as before</li>
+<li class=fragment>Mutate it up to 10 times</li>
+<li class=fragment>If any mutation substantively improves the example, reset the counter.</li>
+</ul>
+</section>
 
 <section>
 <h2>Not mentioned</h2>
