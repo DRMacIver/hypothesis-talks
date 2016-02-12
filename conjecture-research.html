@@ -79,7 +79,6 @@
 </section>
 
 <section>
-
 <h2>What is QuickCheck?</h2>
 </section>
 
@@ -102,10 +101,11 @@ main = quickCheck propSorted
 <section>
 <h2>Essential features</h2>
 <ul>
-<li>Generate random examples</li>
+<li>Generate random structured examples</li>
 <li>Reduce failing examples to simpler ones</li>
 <li>Print minimized failing example</li>
 <li>Save failing examples</li>
+<li class=fragment>(Conditional tests)</li>
 </ul>
 </section>
 
@@ -235,6 +235,20 @@ def test_sort_is_sorted(data):
     ls = data.draw(lists(integers()))
     ls.sort()
     assert is_sorted(ls)
+</code></pre></section>
+ 
+</section>
+
+<section>
+<pre><code class=python data-trim>
+from hypothesis import conjecture
+from hypothesis.strategies import lists, integers
+
+@conjecture
+def test_dependent_draw(data):
+    i = data.draw(integers())
+    j = data.draw(integers(min_value=i))
+    assert i &gt;= j 
 </code></pre></section>
  
 </section>
