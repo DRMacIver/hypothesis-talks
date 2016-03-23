@@ -56,6 +56,7 @@
       <div class="slides">
         <section>
           <h1>Testing Mercurial</h1><h2>with Hypothesis</h2>
+          <p><a href=https://bit.ly/testing-mercurial-with-hypothesis-1>bit.ly/testing-mercurial-with-hypothesis-1</a></p>
         </section>
 
         <section>
@@ -80,14 +81,34 @@ def mean(xs):
   st.floats(allow_nan=False, allow_infinity=False), min_size=1))
 def test_mean(xs):
     assert min(xs) &lt;= mean(xs) &lt;= max(xs)
-</code></pre></section>
+</code></pre>
+
+<pre class=fragment><code class="nohighlight" data-trim>
+
+Falsifying example: test_mean(
+  xs=[1.7976321109618856e+308, 6.102390043022755e+303]
+)
+
+</code></pre>
+</section>
 
 
 <section><pre><code class="python" data-trim>
 @given(binary())
 def test_never_errors(bin):
     binaryornot.is_binary(bin)
-</code></pre></section>
+</code></pre>
+
+
+<pre class=fragment><code class="nohighlight" data-trim>
+
+Falsifying example: test_never_errors(
+  bin=b'\xae\xc5\xdc'
+)
+
+</code></pre>
+
+</section>
 
 
 <section><pre><code class="python" data-trim>
@@ -224,13 +245,6 @@ def genpath(self, source):
 </code></pre>
 </section>
 
-<section><pre><code class="python" data-trim>
-def command(self, *args):
-    self.log.append("$ " + ' '.join(map(pipes.quote, args)))
-    subprocess.check_output(args, stderr=subprocess.STDOUT)
-</code></pre>
-</section>
-
 <section><pre><code data-trim class=nohighlight>
 $ hg init
 $ hg --config format.chunkcachesize=0 log
@@ -238,6 +252,14 @@ abort: revlog chunk cache size 0 is not greater than 0!
 [255]
 </code></pre>
 </section>
+
+<section><pre><code class="python" data-trim>
+def command(self, *args):
+    self.log.append("$ " + ' '.join(map(pipes.quote, args)))
+    subprocess.check_output(args, stderr=subprocess.STDOUT)
+</code></pre>
+</section>
+
 <section>
 <pre><code data-trim class=nohighlight>
 $ hg init
@@ -350,6 +372,12 @@ requested revision
 </section>
 <section>
   <img src=images/future.png>
+</section>
+
+<section>
+<p style='font-size: 64pt'>?</p>
+
+<p><a href=https://bit.ly/testing-mercurial-with-hypothesis-1>bit.ly/testing-mercurial-with-hypothesis-1</a></p>
 </section>
 
       </div>
