@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Finding more bugs with less work</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2.5em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h2 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+          <h1>Testing Mercurial</h1><h2>with Hypothesis</h2>
+        </section>
+
+        <section>
+          <a href=https://en.wikipedia.org/wiki/List_of_U.S._state_insects><img src=images/bug.jpg /></a>
+        </section>
+        <section>
+          <img src=images/test.jpg />
+        </section>
+        <section>
+          <img src=images/construction.jpg />
+        </section>
+        <section>
+          <img src=images/computer.jpg />
+        </section>
+
+<section><pre><code class="python" data-trim>
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+@given(st.lists(
+  st.floats(allow_nan=False, allow_infinity=False), min_size=1))
+def test_mean(xs):
+    assert min(xs) &lt;= mean(xs) &lt;= max(xs)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+@given(binary())
+def test_never_errors(bin):
+    binaryornot.is_binary(bin)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+@given(binary())
+def test_utf8b_round_trips(bin):
+    assert encoding.fromutf8b(encoding.toutfb(bin)) == bin
+</code></pre>
+
+<pre class=fragment><code data-trim>
+Falsifying example: test_utf8b_round_trips(
+  bin=b'\xf1\x80\x80\x80\x80'
+)
+</code></pre>
+
+<p class=fragment>(bug 5031)</p>
+</section>
+
+<section><pre><code class="python" data-trim>
+@given(
+    text(
+        characters(min_codepoint=1, blacklist_categories=('Cs',)),
+    min_size=1).map(lambda x: x.encode(sys.getdefaultencoding())])
+)
+def test_commit(message):
+    repo = tempfile.mkdtemp()
+    try:
+        os.chdir(repo)
+        subprocess.check_call(["hg", "init"])
+        with open("foo", "wb"):
+            pass
+        subprocess.check_call(["hg", "add", "foo"])
+        subprocess.check_call([
+            "hg", "commit", "-m", message
+    finally:
+        shutil.rmtree(repo)
+
+</code></pre>
+</section>
+
+
+<section><pre><code class="python" data-trim>
+class TrivialState(RuleBasedStateMachine):
+    @rule(bin=binary())
+    def test_utf8b_round_trips(bin):
+        assert encoding.fromutf8b(encoding.toutfb(bin)) == bin
+
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+class TwoState(RuleBasedStateMachine):
+    def __init__(self):
+        super(TwoState, self).__init__()
+        self.broken = False
+
+    @rule()
+    def makebroken(self):
+        self.broken = True
+
+    @rule()
+    def notbroken(self):
+        assert not self.broken
+</code></pre>
+
+<pre class=fragment><code data-trim class=nohighlight>
+Step #1: makebroken()
+Step #2: notbroken()
+</code></pre>
+</section>
+
+<section>
+  <img src=images/twins.jpg />
+</section>
+
+
+<section><pre><code class="python" data-trim>
+class CompareDBImplementations(RuleBasedStateMachine):
+    @rule(key=binary(), value=binary())
+    def save(self, key, value):
+        ...
+
+    @rule(key=binary(), value=binary())
+    def delete(self, key, value):
+        ...
+
+    @rule(key=binary())
+    def assert_same_values(self, key):
+        ...
+</code></pre>
+</section>
+
+<section><pre><code class="python" data-trim>
+class CompareDBImplementations(RuleBasedStateMachine):
+    Strings = Bundle('strings')
+    @rule(x=binary())
+    def key(self, x):
+      return x
+
+    @rule(key=Strings, value=Strings)
+    def save(self, key, value):
+        ...
+
+    @rule(key=Strings, value=Strings)
+    def delete(self, key, value):
+        ...
+
+    @rule(key=Strings)
+    def assert_same_values(self, key):
+        ...
+</code></pre>
+</section>
+
+
+<section><pre><code class="python" data-trim>
+paths = Bundle('paths')
+
+filecharacters = (
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "0123456789[]^_`;=@{}~ !#$%&amp;'()+,-"
+)
+
+files = st.text(filecharacters, min_size=1).map(
+  lambda x: x.strip()).filter(bool).map(
+    lambda s: s.encode('ascii'))
+
+@rule(
+    target=paths,
+    source=st.lists(files, min_size=1).map(
+      lambda l: os.path.join(*l)))
+def genpath(self, source):
+    return source
+
+</code></pre>
+</section>
+
+<section><pre><code class="python" data-trim>
+def command(self, *args):
+    self.log.append("$ " + ' '.join(map(pipes.quote, args)))
+    subprocess.check_output(args, stderr=subprocess.STDOUT)
+</code></pre>
+</section>
+
+<section><pre><code data-trim class=nohighlight>
+$ hg init
+$ hg --config format.chunkcachesize=0 log
+abort: revlog chunk cache size 0 is not greater than 0!
+[255]
+</code></pre>
+</section>
+<section>
+<pre><code data-trim class=nohighlight>
+$ hg init
+$ hg --config format.chunkcachesize=0 log
+</code></pre>
+<pre><code data-trim class=nohighlight>
+./run-tests.py --local test-stuff.t -i
+</code></pre>
+
+<pre><code data-trim class=nohighlight>
+   $ hg init
+   $ hg --config format.chunkcachesize=0 log
++  abort: revlog chunk cache size 0 is not greater than 0!
++  [255]
+Accept this change? [n] 
+</code></pre></section>
+      <section>
+        <img src=images/snail.jpg />
+      </section>
+      <section>
+        <img src=images/datacenter.jpg />
+      </section>
+
+<section><pre><code class="python" data-trim>
+@rule(path=paths)
+def removepath(self, path):
+    if os.path.exists(path):
+        with acceptableerrors(
+            'file is untracked',
+            'file has been marked for add',
+            'file is modified',
+        ):
+            self.hg("remove", "--", path)
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+def hg(self, *args):
+    extra_flags = []
+    for key, value in self.config.items():
+        extra_flags.append("--config")
+        extra_flags.append("%s=%s" % (key, value))
+    self.command("hg", *(tuple(extra_flags) + args))
+</code></pre></section>
+
+
+<section><pre><code class="python" data-trim>
+extensions = st.sampled_from(('shelve', 'mq', 'blackbox',))
+
+@rule(extension=extensions)
+def addextension(self, extension):
+    self.config[extensionconfigkey(extension)] = ""
+
+@rule(extension=extensions)
+def removeextension(self, extension):
+    self.config.pop(extensionconfigkey(extension), None)
+
+def hasextension(self, extension):
+    return extensionconfigkey(extension) in self.config
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+@rule()
+@precondition(lambda self: self.hasextension("shelve"))
+def shelve(self):
+    with acceptableerrors("nothing changed"):
+        self.hg("shelve")
+
+@rule()
+@precondition(lambda self: self.hasextension("shelve"))
+def unshelve(self):
+    with acceptableerrors("no shelved changes to apply"):
+        self.hg("unshelve")
+</code></pre></section>
+
+
+<section><pre><code class="nohighlight" data-trim>
+$ hg init
+$ hg branch -- '\\'
+marked working directory as branch \\
+(branches are permanent and global, did you want a bookmark?)
+$ hg --config extensions.shelve= commit -m "0"
+$ hg --config extensions.shelve= shelve
+abort: shelved change names may not contain slashes
+[255]
+</code></pre>
+
+<p>(bug 5112)</p>
+</section>
+
+<section><pre><code class="nohighlight" data-trim>
+$ hg init
+$ echo [extensions] &gt;&gt; .hg/hgrc
+$ echo shelve= &gt;&gt; .hg/hgrc
+$ echo a &gt; 'E'
+$ hg addremove
+adding E
+$ hg commit -m "hi" 
+$ hg remove -- 'E'
+$ echo b &gt; 'E'
+$ hg shelve
+shelved as default
+E: untracked file differs
+abort: untracked files in working directory differ from files in
+requested revision
+[255]
+</code></pre>
+
+<p>(bug 5113)</p>
+</section>
+<section>
+  <img src=images/future.png/>
+</section>
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
