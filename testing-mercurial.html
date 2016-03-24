@@ -204,7 +204,7 @@ class CompareDBImplementations(RuleBasedStateMachine):
 <section><pre><code class="python" data-trim>
 class CompareDBImplementations(RuleBasedStateMachine):
     Strings = Bundle('strings')
-    @rule(x=binary())
+    @rule(x=binary(), target=Strings)
     def key(self, x):
       return x
 
