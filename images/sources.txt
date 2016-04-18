@@ -1,2 +1,6 @@
 <a href="https://commons.wikimedia.org/wiki/File:Heap_metal.jpg"><img src="images/heap.jpg"></a>
 <a href="https://en.wikipedia.org/wiki/File:Min-heap.png"><img src="images/minheap.jpg"></a>
+<a href="https://www.flickr.com/photos/idfonline/4336469255/"><img src="images/soldiers.jpg"></a>
+<a href="https://en.wikipedia.org/wiki/File:Kilobot_robot_swarm.JPG"><img src="images/robotswarm.jpg"></a>
+<a href="https://en.wikipedia.org/wiki/File:Flickr_cc_runner_wisconsin_u.jpg"><img src="images/runner.jpg"></a>
+<a href="https://pixabay.com/en/labyrinth-maze-meander-orientation-155972/"><img src="images/labyrinth.png"></a>

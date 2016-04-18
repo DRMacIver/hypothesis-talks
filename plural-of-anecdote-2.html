@@ -135,13 +135,38 @@
         </section>
 
         <section>
+          <img src=images/crowd.jpg />
+        </section>
+
+        <section>
           <img src=images/computer.jpg />
+        </section>
+
+        <section>
+          <img src=images/coins.jpg />
+        </section>
+
+        <section>
+        <a href="https://www.flickr.com/photos/idfonline/4336469255/"><img src="images/soldiers.jpg"></a>
+        </section>
+
+        <section>
+        <a href="https://en.wikipedia.org/wiki/File:Kilobot_robot_swarm.JPG"><img src="images/robotswarm.jpg"></a>
+        </section>
+
+        <section>
+        <a href="https://en.wikipedia.org/wiki/File:Flickr_cc_runner_wisconsin_u.jpg"><img src="images/runner.jpg"></a>
+        </section>
+
+        <section>
+        <a href="https://pixabay.com/en/labyrinth-maze-meander-orientation-155972/"><img src="images/labyrinth.png"/></a>
         </section>
 
         <section>
         <strong style='font-size: 150px'>?</strong>
         </section>
-        </section>
+
+    </section>
 
         <section>
         <section>
@@ -660,7 +685,8 @@ def heappush(heap, value):
     while index &gt; 0:
         parent = (index - 1) // 2
         if heap[parent] &gt; heap[index]:
-            heap[parent], heap[index] = heap[index], heap[parent]
+            heap[parent], heap[index] = (
+                heap[index], heap[parent])
             index = parent
         else:
             break
