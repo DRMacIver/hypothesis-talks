@@ -1,0 +1,2 @@
+<a href="https://commons.wikimedia.org/wiki/File:Heap_metal.jpg"><img src="images/heap.jpg"></a>
+<a href="https://en.wikipedia.org/wiki/File:Min-heap.png"><img src="images/minheap.jpg"></a>
