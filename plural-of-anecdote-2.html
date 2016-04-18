@@ -847,7 +847,7 @@ Step #7: pop(heap=v2)
 </section>
 
 <section>
-<pre><code class=python>
+<pre><code class=python data-trim>
 def heapmerge(x, y):
     result = list(heap1)
     for v in heap2:
@@ -857,7 +857,7 @@ def heapmerge(x, y):
 </section>
 
 <section>
-<pre><code class=python>
+<pre><code class=python data-trim>
 def heapmerge(x, y):
     result = []
     i = 0
@@ -873,22 +873,33 @@ def heapmerge(x, y):
 </pre></code>
 </section>
 
-<pre class="stretch output">
-
+<section>
+<pre class="output">
 Step #1: v1 = newheap()
 Step #2: push(heap=v1, value=0)
-Step #3: push(heap=v1, value=1)
-Step #4: v2 = merge(heap2=v1, heap1=v1)
-Step #5: v3 = merge(heap2=v1, heap1=v2)
-Step #6: push(heap=v3, value=-1)
-Step #7: push(heap=v3, value=-1)
-Step #8: v4 = merge(heap2=v3, heap1=v2)
-Step #9: pop(heap=v4)
-Step #10: pop(heap=v1)
-Step #11: pop(heap=v2)
-Step #12: pop(heap=v4)
+Step #3: v2 = merge(heap1=v1, heap2=v1)
+Step #4: v3 = merge(heap1=v2, heap2=v2)
+Step #5: push(heap=v3, value=-1)
+Step #6: v4 = merge(heap1=v1, heap2=v2)
+Step #7: pop(heap=v4)
+Step #8: push(heap=v3, value=-1)
+Step #9: v5 = merge(heap1=v1, heap2=v2)
+Step #10: v6 = merge(heap1=v5, heap2=v4)
+Step #11: v7 = merge(heap1=v6, heap2=v3)
+Step #12: pop(heap=v7)
+Step #13: pop(heap=v7)
 </pre>
 
+<pre><code class=pycon data-trim>
+&gt;&gt;&gt; v7
+[-1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0]
+</pre></code>
+
+</section>
+
+<section>
+  <strong style='font-size: 150px'>?</strong>
+</section>
 
 </section>
 
@@ -900,7 +911,7 @@ Step #12: pop(heap=v4)
 
 <section>
 
-<pre class=stretch><code class=java>
+<pre class=stretch><code class=java data-trim>
 public class TestSortingAList {
     @Rule
     public final TestDataRule data = new TestDataRule();
