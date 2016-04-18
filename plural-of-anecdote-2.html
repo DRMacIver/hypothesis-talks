@@ -300,19 +300,6 @@ test_sort.py::test_example3 <span style="color: green">PASSED</span>
 </pre></section>
 
 <section>
-<pre class="output">
-test_sort.py:33: in test_example3
-    assert sort([4, 3, 2, 1]) == [1, 2, 3, 4]
-E   assert [2, 1, 3, 4] == [1, 2, 3, 4]
-E     At index 0 diff: 2 != 1
-E     Full diff:
-E     - [2, 1, 3, 4]
-E     ?     ---
-E     + [1, 2, 3, 4]
-E     ?  +++
-</pre>
-</section>
-<section>
 <pre><code class="python" data-trim>
 def is_sorted(ls):
     return all(
@@ -787,7 +774,7 @@ Step #5: pop()
 
 
 <section>
-<pre class=stretch><code class=python>
+<pre class=stretch><code class=python data-trim>
 def heappop(heap):
     if len(heap) == 0:
         raise ValueError("Empty heap")
@@ -812,7 +799,7 @@ def heappop(heap):
 </section>
 
 <section>
-<pre><code class=python>
+<pre><code class=python data-trim>
 def heapmerge(x, y):
     x, y = sorted((x, y))
     return x + y
@@ -820,7 +807,7 @@ def heapmerge(x, y):
 </section>
 
 <section>
-<pre class=stretch><code class=python>
+<pre class=stretch><code class=python data-trim>
 from hypothesis.stateful import Bundle
 
 class HeapMachine(RuleBasedStateMachine):
@@ -888,13 +875,15 @@ def heapmerge(x, y):
     result = []
     i = 0
     j = 0
-    while i < len(x) and j &lt; len(y):
+    while i &lt; len(x) and j &lt; len(y):
         if x[i] &lt;= y[j]:
             result.append(x[i])
             i += 1
         else:
             result.append(y[j])
             j += 1
+    result.extend(x[i:])
+    result.extend(y[j:])
     return result
 </pre></code>
 </section>
@@ -937,7 +926,7 @@ Step #13: pop(heap=v7)
 
 <section>
 
-<pre class=stretch><code class=java data-trim>
+<pre class=stretch><code class=java>
 public class TestSortingAList {
     @Rule
     public final TestDataRule data = new TestDataRule();
