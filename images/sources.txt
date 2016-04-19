@@ -1,6 +1,22 @@
-<a href="https://commons.wikimedia.org/wiki/File:Heap_metal.jpg"><img src="images/heap.jpg"></a>
-<a href="https://en.wikipedia.org/wiki/File:Min-heap.png"><img src="images/minheap.jpg"></a>
-<a href="https://www.flickr.com/photos/idfonline/4336469255/"><img src="images/soldiers.jpg"></a>
-<a href="https://en.wikipedia.org/wiki/File:Kilobot_robot_swarm.JPG"><img src="images/robotswarm.jpg"></a>
-<a href="https://en.wikipedia.org/wiki/File:Flickr_cc_runner_wisconsin_u.jpg"><img src="images/runner.jpg"></a>
-<a href="https://pixabay.com/en/labyrinth-maze-meander-orientation-155972/"><img src="images/labyrinth.png"></a>
+<section><a href="https://commons.wikimedia.org/wiki/File:Heap_metal.jpg"><img src="images/heap.jpg"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/File:Min-heap.png"><img src="images/minheap.jpg"></a></section>
+<section><a href="https://www.flickr.com/photos/idfonline/4336469255/"><img src="images/soldiers.jpg"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/File:Kilobot_robot_swarm.JPG"><img src="images/robotswarm.jpg"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/File:Flickr_cc_runner_wisconsin_u.jpg"><img src="images/runner.jpg"></a></section>
+<section><a href="https://pixabay.com/en/labyrinth-maze-meander-orientation-155972/"><img src="images/labyrinth.png"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/File:YuanEmperorAlbumGenghisPortrait.jpg"><img src=images/genghiskhan.jpg></a></section>
+<section><a href="https://en.wikipedia.org/wiki/File:Donboscocambodia0001.JPG"><img src="images/test.jpg"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/Commodore_64#/media/File:C64c_system.jpg"><img src=images/computer.jpg></a></section>
+<section><a href="https://www.flickr.com/photos/9399948@N05/3644112373"><img src="images/unity.jpg"></a></section>
+<section><a href="https://pixabay.com/en/hand-child-black-skin-663725/"><img src="images/hand.jpg"></a<</section>
+<section><a href="https://commons.wikimedia.org/wiki/File:QSH_Tin_Wind_Up_Mechanical_Robot_(Giant_Easelback_Robot)_Side.jpg"><img src="images/windup-robot.jpg"></a></section>
+<section><a href="https://www.flickr.com/photos/jamescridland/613445810"><img src=images/crowd.jpg></a></section>
+<section><a href="https://www.flickr.com/photos/59937401@N07/5929558175"><img src=images/coins.jpg></a></section>
+<section><a href="https://commons.wikimedia.org/wiki/File:American_Cash.JPG"><img src=images/cash.jpg></a></section>
+<section><a href="https://commons.wikimedia.org/wiki/File:Hand_tools.jpg"><img src=images/tools.jpg></a></section>
+<section><a href="https://www.flickr.com/photos/argonne/4534362371/"><img src=images/science.jpg /></a></section>
+<section><a href="https://commons.wikimedia.org/wiki/File:Tour_Eiffel_Wikimedia_Commons.jpg"><img src="images/eiffel.jpg"></a></section>
+<section><a href="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Collapsible_top_hat_IMGP9677.jpg/673px-Collapsible_top_hat_IMGP9677.jpg"><img src=images/tophat.jpg></a></section>
+<section><a href="https://www.flickr.com/photos/82136546@N00/5627007458"><img src=images/legorobot.jpg></a></section>
+<section><a href="https://commons.wikimedia.org/wiki/File:Showa_Steel_Works.JPG"><img src=images/steelworks.jpg></a></section>
+

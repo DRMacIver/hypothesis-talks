@@ -59,6 +59,12 @@
         color: #DCDCDC;
         font-family: monospace;
       }
+      
+      .reveal section img.nocomment {
+        box-shadow: none;
+        margin: auto;
+        width: 300px; height: 150px;
+      }
     </style>
   </head>
 
@@ -83,6 +89,9 @@
           <p>
             <a href="http://www.drmaciver.com">drmaciver.com</a> / <a href="https://twitter.com/DRMacIver/">@DRMacIver</a>
           </p>
+          <p>
+            <a href="http://hypothesis.works">hypothesis.works</a>
+          </p>
         </section>
 
 
@@ -91,80 +100,111 @@
           <h2>Chapter 1</h2>
         </section>
 
-        <section>
-          <img src=images/geometry.jpg />
-        </section>
 
-        <section>
-          <a href=https://en.wikipedia.org/wiki/Domesday_Book><img src=images/book.jpg /></a>
-        </section>
-
-        <section>
-          <img src=images/science.jpg />
-        </section>
-
-        <section>
-          <a href=https://en.wikipedia.org/wiki/Turtles_all_the_way_down><img src=images/turtle.jpg /></a>
-        </section>
-
-        <section>
-          <img src=images/matrix.jpg />
-        </section>
-        <section>
-          <img src=images/tugofwar.jpg />
-        </section>
-
-        <section>
-          <img src=images/wanttobelieve.jpg />
-        </section>
-
-        <section>
-          <img src=images/truth.jpg />
-        </section>
-
-        <section>
-          <img src=images/test.jpg />
-        </section>
-
-        <section>
-          <img src=images/specs.jpg />
-        </section>
-
-        <section>
-          <a href=https://commons.wikimedia.org/wiki/File:Flickr_-_The_U.S._Army_-_Story_time_with_the_First_Lady.jpg><img src=images/storytime.jpg></a>
-        </section>
-
-        <section>
-          <img src=images/crowd.jpg />
-        </section>
-
-        <section>
-          <img src=images/computer.jpg />
-        </section>
-
-        <section>
-          <img src=images/coins.jpg />
-        </section>
-
-        <section>
-        <a href="https://www.flickr.com/photos/idfonline/4336469255/"><img src="images/soldiers.jpg"></a>
-        </section>
+<!--
+  Slide 1 (robots): I have an army of robots.
+-->
 
         <section>
         <a href="https://en.wikipedia.org/wiki/File:Kilobot_robot_swarm.JPG"><img src="images/robotswarm.jpg"></a>
         </section>
 
-        <section>
-        <a href="https://en.wikipedia.org/wiki/File:Flickr_cc_runner_wisconsin_u.jpg"><img src="images/runner.jpg"></a>
-        </section>
 
-        <section>
-        <a href="https://pixabay.com/en/labyrinth-maze-meander-orientation-155972/"><img src="images/labyrinth.png"/></a>
-        </section>
+<!--
 
-        <section>
-        <strong style='font-size: 150px'>?</strong>
-        </section>
+  Slide 2: (Genghis Khan): Don't worry, I'm not planning to take over the world with them. Instead I'm using them for a much more specific task.
+-->
+<section>
+<a href="https://en.wikipedia.org/wiki/File:YuanEmperorAlbumGenghisPortrait.jpg"><img src=images/genghiskhan.jpg></a>
+</section>
+<!--
+  Slide 3: (Test) That is, of course, testing.
+-->
+
+<section>
+<a href="https://en.wikipedia.org/wiki/File:Donboscocambodia0001.JPG"><img src="images/test.jpg"></a>
+</section>
+
+<!--
+  Slide 4: (Computer) When I say robot army I'm of course being overly dramatic. What I really mean is that to a large degree I have computers doing my testing for me.
+           Of course, you probably think you do too.
+-->
+
+<section>
+<a href="https://en.wikipedia.org/wiki/Commodore_64#/media/File:C64c_system.jpg"><img src=images/computer.jpg></a>
+</section>
+
+<!--
+  Slide 5: (Hand). The problem is that most automated testing is actually remarkably manual. Every test your computer runs, someone had to write by hand and it only does
+           precisely what they told it to do.
+-->
+
+<section>
+<a href="https://pixabay.com/en/hand-child-black-skin-663725/"><img src="images/hand.jpg"></a>
+</section>
+
+<!--
+  Slide 6: (Clockwork soldier). This isn't an army of robots, it's an army of clockworks soldiers. You set them on a path, and they go exactly where you tell them to.
+           As a result, conventional automated testing doesn't speed up testing, it only speeds up *repeating* testing. The computer doesn't do any work that you haven't
+           done yourself at least once. That's still pretty useful, but it's not good enough. 
+-->
+
+<section>
+<a href="https://commons.wikimedia.org/wiki/File:QSH_Tin_Wind_Up_Mechanical_Robot_(Giant_Easelback_Robot)_Side.jpg"><img src="images/windup-robot.jpg"></a>
+</section>
+
+<!--
+  Slide 7: (Crowd). The problem with this is that we're outnumbered. We have vastly more users than we do people testing, and that means the majority of the bugs
+           are going to be found by your users, not by your testing.
+-->
+<section><a href="https://www.flickr.com/photos/jamescridland/613445810"><img src=images/crowd.jpg></a></section>
+<!--
+  Slide 8: (Cash). This is expensive. Bugs found by users not only annoy the users, and potentially lose us custom, they also take much longer to figure out and fix.
+           We can throw people at the problem up to a point, but at some point more people becomes more expensive than we save on bugs.
+-->
+
+<section><a href="https://commons.wikimedia.org/wiki/File:American_Cash.JPG"><img src=images/cash.jpg></a></section>
+
+<!--
+  Slide 9: (Tools). So instead we need to equip ourselves with better tools. I've been spending the last year and a half building them, in the form of a library called
+           Hypothesis.People have been using them in production for a while, and it's been going pretty great.
+-->
+
+
+<section><a href="https://commons.wikimedia.org/wiki/File:Hand_tools.jpg"><img src=images/tools.jpg></a></section>
+<!--
+  Slide 10: (Scientists). It's taken a little bit of science.
+-->
+
+<section><a href="https://www.flickr.com/photos/argonne/4534362371/"><img src=images/science.jpg /></a></section>
+
+<!--
+  Slide 11: (Eiffel tower). A lot of engineering.
+-->
+
+<section><a href="https://commons.wikimedia.org/wiki/File:Tour_Eiffel_Wikimedia_Commons.jpg"><img src="images/eiffel.jpg"></a></section>
+
+<!--
+  Slide 12: (Magician's hat). And at least some flat out magic.
+-->
+
+<section><a href="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Collapsible_top_hat_IMGP9677.jpg/673px-Collapsible_top_hat_IMGP9677.jpg"><img src=images/tophat.jpg></a></section>
+
+<!--
+  Slide 13: (Gears). But at this point, I feel I can confidently say that Hypothesis works.
+-->
+
+<section><a href="https://commons.wikimedia.org/wiki/File:Showa_Steel_Works.JPG"><img src=images/steelworks.jpg></a></section>
+
+<!--
+  Slide 14: (Construction blocks). And that it's so easy to use, that you too can build your own army of robots.
+-->
+<section><a href="https://www.flickr.com/photos/82136546@N00/5627007458"><img src=images/legorobot.jpg></a></section>
+<!--
+  Slide 15: (Question mark). That's about enough advertising, but before I move on to showing you how all of this works out in practice, any questions?
+-->
+
+        <section><img class=nocomment  src="images/nocomment.png"></section>
 
     </section>
 
@@ -593,9 +633,10 @@ test_sort.py::test_sorted_list_has_same_counts <span style="color: green">PASSED
 </pre>
 </section>
 
-<section>
-<strong style='font-size: 150px'>?</strong>
-</section>
+        <section>
+        <img class=nocomment  src="images/nocomment.png">
+        </section>
+
 
 </section>
 
@@ -912,9 +953,9 @@ Step #13: pop(heap=v7)
 
 </section>
 
-<section>
-  <strong style='font-size: 150px'>?</strong>
-</section>
+        <section>
+        <img class=nocomment  src="images/nocomment.png">
+        </section>
 
 </section>
 
@@ -958,6 +999,7 @@ public class TestSortingAList {
 
         </section>
         <section>
+          <p><span style='font-size: 150px;'>?/!</span></p>
           <p><a href=https://bit.ly/plural-of-anecdote-2>https://bit.ly/plural-of-anecdote-2</a></p>
           <p><a href=http://hypothesis.works>hypothesis.works</a></p>
         </section>
