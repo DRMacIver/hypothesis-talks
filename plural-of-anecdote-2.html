@@ -98,6 +98,7 @@
         <section>
         <section>
           <h2>Chapter 1</h2>
+          <h3>No Mr Bond...</h3>
         </section>
 
 
@@ -211,6 +212,7 @@
         <section>
         <section>
           <h2>Chapter 2</h2>
+          <h3>Tests, of a sort</h3>
         </section>
 
 <section>
@@ -643,6 +645,7 @@ test_sort.py::test_sorted_list_has_same_counts <span style="color: green">PASSED
 <section>
 <section>
   <h2>Chapter 3</h2>
+  <h3>On the heap</h3>
 </section>
 
 <section>
@@ -755,7 +758,7 @@ from hypothesis.stateful import RuleBasedStateMachine, precondition, rule
 
 class HeapMachine(RuleBasedStateMachine):
     def __init__(self):
-        super(HeapMachine1, self).__init__()
+        super(HeapMachine, self).__init__()
         self.heap = []
 
     @rule(value=integers())
