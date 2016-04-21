@@ -601,7 +601,8 @@ Falsifying example:
 </section>
 
 
-<section><pre><code class="python" data-trim>
+<section><pre class=stretch><code class="python">
+
 def bubble_sort(ls):
     needs_sorting = True
     while needs_sorting:
@@ -610,6 +611,8 @@ def bubble_sort(ls):
             if ls[i - 1] &gt; ls[i]:
                 needs_sorting = True
                 ls[i - 1], ls[i] = ls[i], ls[i - 1]
+
+
 
 def merge_sort(ls):
     if len(ls) &lt;= 1:
