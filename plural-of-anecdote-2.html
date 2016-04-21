@@ -699,9 +699,6 @@ def heapnew():
 
 <section>
 <pre><code class="python" data-trim>
-def heapnew():
-    return []
-
 def heappush(heap, value):
     ...
 
@@ -711,9 +708,6 @@ def heappush(heap, value):
 
 <section>
 <pre><code class="python" data-trim>
-def heapnew():
-    return []
-
 def heappush(heap, value):
     heap.append(value)
     index = len(heap) - 1
@@ -726,6 +720,11 @@ def heappush(heap, value):
         else:
             break
 
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python" data-trim>
 def heappop(heap):
     ...
 </code></pre>
@@ -733,21 +732,6 @@ def heappop(heap):
 
 <section>
 <pre><code class="python" data-trim>
-def heapnew():
-    return []
-
-def heappush(heap, value):
-    heap.append(value)
-    index = len(heap) - 1
-    while index &gt; 0:
-        parent = (index - 1) // 2
-        if heap[parent] &gt; heap[index]:
-            heap[parent], heap[index] = (
-                heap[index], heap[parent])
-            index = parent
-        else:
-            break
-
 def heappop(heap):
     return heap.pop(0)
 </code></pre>
@@ -824,7 +808,8 @@ Step #5: pop()
 
 
 <section>
-<pre class=stretch><code class=python data-trim>
+<pre class=stretch><code class=python>
+
 def heappop(heap):
     if len(heap) == 0:
         raise ValueError("Empty heap")
