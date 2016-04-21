@@ -738,7 +738,8 @@ def heappush(heap, value):
     while index &gt; 0:
         parent = (index - 1) // 2
         if heap[parent] &gt; heap[index]:
-            heap[parent], heap[index] = heap[index], heap[parent]
+            heap[parent], heap[index] = (
+                heap[index], heap[parent])
             index = parent
         else:
             break
@@ -753,7 +754,8 @@ def heappop(heap):
 <pre class=stretch><code class="python">
 
 from hypothesis.strategies import integers
-from hypothesis.stateful import RuleBasedStateMachine, precondition, rule
+from hypothesis.stateful import RuleBasedStateMachine, \
+    precondition, rule
 
 
 class HeapMachine(RuleBasedStateMachine):
@@ -786,7 +788,7 @@ class HeapMachine(RuleBasedStateMachine):
 &gt;       assert correct == result
 <span style="color: red">E       AssertionError: assert 0 == 1</span>
 
-binheap.py:56: AssertionError
+AssertionError
 
 
 ---------- Hypothesis ----------
@@ -888,7 +890,7 @@ class HeapMachine(RuleBasedStateMachine):
 &gt;       assert correct == result
 <span style="color: red">E       AssertionError: assert 0 == 1</span>
 
-binheap.py:105: AssertionError
+AssertionError
 
 ---------- Hypothesis ----------
 
@@ -899,7 +901,6 @@ Step #4: push(heap=v1, value=1)
 Step #5: v2 = merge(heap2=v1, heap1=v1)
 Step #6: pop(heap=v2)
 Step #7: pop(heap=v2)
-
 </pre>
 </section>
 
@@ -973,7 +974,12 @@ public class TestSortingAList {
     @Rule
     public final TestDataRule data = new TestDataRule();
 
-    private &lt;T extends Comparable&lt;T&gt;&gt; void assertSorted(List&lt;T&gt; elements){
+    @Test
+    public void testIsSortedAfterSorting(){
+        List&lt;Integer&gt; elements = data.draw(lists(integers()));
+
+        elements.sort(Comparator.naturalOrder());
+
         if(elements.isEmpty()) return;
         Iterator&lt;T&gt; it = elements.iterator();
         T previous = it.next();
@@ -982,13 +988,6 @@ public class TestSortingAList {
             assertTrue(previous.compareTo(current) &lt;= 0);
             previous = current;
         }
-    }
-
-    @Test
-    public void testIsSortedAfterSorting(){
-        List&lt;Integer&gt; ls = data.draw(lists(integers()));
-        ls.sort(Comparator.naturalOrder());
-        assertSorted(ls);
     }
 }
 </pre></code>
