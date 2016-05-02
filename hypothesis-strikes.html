@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>The plural of anecdote is not test suite</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 1.5em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+      pre.output {
+        display: block;
+        padding: 2em;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        overflow: auto;
+        max-height: 400px;
+        word-wrap: normal;
+        background: #3F3F3F;
+        color: #DCDCDC;
+        font-family: monospace;
+      }
+      
+      .reveal section img.nocomment {
+        box-shadow: none;
+        margin: auto;
+        width: 300px; height: 150px;
+      }
+    </style>
+  </head>
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+          <h1><a href=http://hypothesis.works/>hypothesis.works</a> ⚡</h1>
+        </section>
+
+        <section>
+          <h1>?</h1>
+        </section>
+
+<section><pre><code class="python" data-trim>
+from hypothesis import given
+from hypothesis.strategies import binary
+
+@given(binary())
+def test_decode_inverts_encode(s):
+    assert fromutf8b(toutf8b(s)) == s
+</code></pre>
+
+
+<pre class=fragment><code data-trim>
+UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2...
+
+Falsifying example: test_decode_inverts_encode(
+  s='\xc2\xc2\x80'
+)
+</code></pre></section>
+
+
+<section>
+<pre><code class="python" data-trim>
+
+from hypothesis.extra.numpy import arrays
+from hypothesis.strategies import floats
+from hypothesis import given
+import numpy as np
+
+
+@given(arrays(float, 3, floats(allow_nan=False)))
+def test_mean_median_inequality(xs):
+    assert abs(np.median(xs) - np.mean(xs)) &lt;= np.std(xs)
+
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>
+assert 4.9406564584124654e-324 &lt;= 0.0
+
+------ Hypothesis ------
+
+Falsifying example: test_mean_median_inequality(
+  xs=array([
+    0.00000000e+000,   0.00000000e+000,   9.88131292e-324
+]))
+
+</code></pre></section>
+
+    <!--  example5 -->
+    <section><pre><code class=python data-trim>
+@given(
+    models(Project, collaborator_limit=integers(
+        min_value=0, max_value=20)),
+    lists(models(User), max_size=20))
+def test_can_add_users_up_to_collaborator_limit(
+    project, collaborators
+):
+    for c in collaborators:
+        if project.at_collaboration_limit():
+            with self.assertRaises(LimitReached):
+                project.add_user(c)
+            self.assertFalse(project.team_contains(c))
+        else:
+            project.add_user(c)
+            self.assertTrue(project.team_contains(c))
+</code></pre>
+        <pre class=fragment><code data-trim>
+Falsifying example: test_can_add_users_up_to_collaborator_limit(
+  self=TestProjectManagement(),
+  project=Project('', 1),
+  collaborators=[User(.@.biz), User(.@.biz)]
+)
+Traceback (most recent call last):
+...
+    self.assertFalse(project.team_contains(c))
+AssertionError: True is not false
+        </code></pre>
+</section>
+<section>
+<pre class=stretch><code class="python">
+
+from hypothesis.strategies import integers
+from hypothesis.stateful import RuleBasedStateMachine, \
+    precondition, rule
+
+
+class HeapMachine(RuleBasedStateMachine):
+    def __init__(self):
+        super(HeapMachine, self).__init__()
+        self.heap = []
+
+    @rule(value=integers())
+    def push(self, value):
+        heappush(self.heap, value)
+
+    @rule()
+    @precondition(lambda self: self.heap)
+    def pop(self):
+        correct = min(self.heap)
+        result = heappop(self.heap)
+        assert correct == result
+
+</code></pre>
+</section>
+
+        <section>
+          <p><a href=http://hypothesis.works>hypothesis.works</a></p>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
