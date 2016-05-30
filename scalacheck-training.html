@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Thinking in property based tests</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 2em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      pre.output {
+        display: block;
+        padding: 10px;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        overflow: auto;
+        max-height: 400px;
+        word-wrap: normal;
+        background: #3F3F3F;
+        color: #DCDCDC; }
+      img {
+        border: none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+
+<section>
+  <h1>Thinking in property based tests</h1>
+</section>
+
+
+<section>
+  <h2>Anatomy of a ScalaTest test</h2>
+<pre><code class=scala data-trim>
+import org.scalatest.FunSuite
+
+class TestSomeStuff
+    extends FunSuite {
+
+  test("Some maths"){
+    assert(1 + 1 == 2)
+  }
+
+  test("Some more maths"){
+    assert(1 + 1 + 1 == 3)
+  }
+}
+  </code></pre>
+    <p><a href="http://www.scalatest.org/getting_started_with_fun_suite">www.scalatest.org/getting_started_with_fun_suite</a></p>
+</section>
+
+
+<section>
+  <h2>Anatomy of a ScalaCheck based test</h2>
+<pre><code class=scala data-trim>
+
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+
+class TestSomeStuffWithScalaCheck
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks {
+
+  test("Some more general maths"){
+    forAll{
+      (x: Int, y: Int) => {
+        assert(x + y == y + x)
+      }
+    }
+  }
+}
+  </code></pre>
+    <p>
+        <a href="http://scalacheck.org/">scalacheck.org</a>
+        <a href="http://www.scalatest.org/user_guide/generator_driven_property_checks">www.scalatest.org/user_guide/generator_driven_property_checks</a>
+    </p>
+
+</section>
+
+<section>
+<section>
+<h1>Problem #1: Run length encoding</h1>
+</section>
+
+<section>
+
+<pre><code class=scala data-trim>
+object RunLength {
+  def encode[T](xs: List[T]): List[(Int, T)] = {
+    throw new NotImplementedError("TODO")
+  }
+
+  def decode[T](xs: List[(Int, T)]): List[T] = {
+    throw new NotImplementedError("TODO")
+  }
+}
+</code></pre>
+</section>
+<section>
+<pre><code class=scala data-trim>
+import org.scalatest.FunSuite
+
+class RunLengthExampleTest extends FunSuite {
+  test("Simple example with no repeats"){
+    assert(RunLength.encode(List(1, 2, 3)) == List(
+        (1, 1), (1, 2), (1, 3)))
+  }
+
+  test("Simple example with all repeats"){
+    assert(RunLength.encode(List(1, 1, 1)) == List((3, 1)))
+  }
+}
+</code></pre>
+</section>
+
+<section>
+<pre><code class=scala data-trim>
+test("Decode to the same value you started with") {
+  forAll {
+    (xs: List[Int]) =&gt; {
+      val encoded = RunLength.encode(xs)
+      assert(RunLength.decode(encoded) == xs)
+    }
+  }
+}
+</code></pre>
+</section>
+
+<section>
+<pre><code class=scala data-trim>
+test("Should never increase the size") {
+  forAll {
+    (xs: List[Int]) =&gt; {
+      val encoded = RunLength.encode(xs)
+      assert(encoded.length <= xs.length)
+    }
+  }
+}
+</code></pre>
+</section>
+
+</section>
+
+<section>
+<section>
+<h2>Problem #2: Binary search</h2>
+</section>
+
+<section><pre><code class=scala data-trim>
+
+object BinarySearch {
+  /*
+    Requires: 'sequence' is sorted by 'order'
+    Returns:  The smallest index i such that if you insert the
+              value 'target' into the sequence at point 'i',
+              the result is still sorted.
+  */
+  def binarySearch[T](
+    sequence: IndexedSeq[T], target: T
+  )(implicit order: Ordering[T]): Int = {
+    throw new NotImplementedError("TODO")
+  }
+}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+
+class BinarySearchTest
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks {
+
+  test("Search to beginning"){
+    assert(BinarySearch.binarySearch(Array(3, 4, 5), 0) == 0)
+  }
+
+  test("Search to end"){
+    assert(BinarySearch.binarySearch(Array(3, 4, 5), 6) == 3)
+  }
+
+  test("Should not crash") {
+    forAll(){(ints: Array[Int], target: Int) =&gt; {
+        BinarySearch.binarySearch(ints, target)
+  }}}
+}
+</code></pre>
+</section>
+<section><pre><code class=scala data-trim>
+test("Should produce a number in bounds") {
+  forAll(){(ints: Array[Int], target: Int) =&gt; {
+    val insertPoint = BinarySearch.binarySearch(ints, target)
+    assert(0 &lt;= insertPoint)
+    assert(insertPoint &lt;= ints.size)
+  }}}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+def isSorted[T](
+  indexedSeq: IndexedSeq[T]
+)(implicit ordering: Ordering[T]): Boolean = {
+  val a, b = indexedSeq.iterator
+  b.next()
+  return a.zip(b).forall{case (s, t) =&gt; ordering.compare(s, t) &lt;= 0}
+}
+
+
+test("The result of an insert should be sorted"){
+  forAll(){(_ints: ArrayBuffer[Int], target: Int) =&gt; {
+    val ints = Sorting.stableSort(_ints).to[ArrayBuffer[Int]]
+    val insertPoint = BinarySearch.binarySearch(ints, target)
+    ints.insert(insertPoint, target)
+    assert(isSorted(ints))
+}}}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+test("Inserting at an earlier point should not be sorted"){
+  forAll(){(_ints: ArrayBuffer[Int], target: Int) =&gt; {
+    val ints: ArrayBuffer[Int] = Sorting.stableSort(_ints).to
+    val insertPoint = BinarySearch.binarySearch(ints, target)
+    for(i &lt;- 0 to (insertPoint - 1)){
+      val ints2 = ints.clone()
+      ints2.insert(i, target)
+      assert(!isSorted(ints2))
+}}}}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+test("It should search into the same place after an insert"){
+  forAll(){(_ints: ArrayBuffer[Int], target: Int) =&gt; {
+    val ints: ArrayBuffer[Int] = Sorting.stableSort(_ints).to
+    val insertPoint = BinarySearch.binarySearch(ints, target)
+    ints.insert(insertPoint, target)
+    assert(BinarySearch.binarySearch(ints, target) == insertPoint)
+}}}
+</code></pre>
+</section>
+</section>
+<section>
+<section>
+  <h2>Gotcha alerts!</h2>
+</section>
+
+<section><pre><code class=scala data-trim>
+import org.scalacheck.Gen
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+
+class BrokenBinarySearchTest
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks{
+  test("The result of an insert should be sorted (broken)"){
+    forAll(){(ints: ArrayBuffer[Int], target: Int) =&gt; {
+      val insertPoint = BinarySearch.binarySearch(ints, target);
+      ints.insert(insertPoint, target);
+      assert(isSorted(ints));
+    }}}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+import org.scalacheck.Gen
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+
+class GotchaTest extends FunSuite with GeneratorDrivenPropertyChecks{
+  test("Integers are in a good range"){
+    forAll(Gen.option(Gen.choose(0, 10))){nopt =&gt;
+      for(n &lt;- nopt) {
+        assert(n &gt;= 0)
+        assert(n &lt;= 5)
+  }}}
+}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+import org.scalacheck.Gen
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+
+class GotchaTest extends FunSuite with GeneratorDrivenPropertyChecks{
+  test("Integers are in a good range"){
+    forAll(Gen.option(Gen.choose(0, 10))){nopt =&gt;
+      for(n &lt;- nopt) {
+        whenever(n &gt;= 0){
+          assert(n &gt;= 0)
+          assert(n &lt;= 5)
+  }}}}
+}
+</code></pre>
+
+</section>
+
+</section>
+<section>
+<section>
+<h2>Problem #3: Cron</h2>
+</section>
+
+<section>
+<pre><code class=cron data-trim>
+13 0 # Runs at 13:00
+*  0 # Runs every hour on the hour
+11 * # Runs at 11:00, 11:01, 11:02, ...
+*  * # Runs every minute 
+</code></pre>
+<p class=fragment>(Yes, this is backwards compared to normal cron. Sorry)</p>
+</section>
+
+<section><pre><code class=scala data-trim>
+object Cron {
+  type Result = (Boolean, Int, Int)
+
+  def cron(
+    hourSpec: Option[Int], minuteSpec: Option[Int],
+    hour: Int, minute: Int
+  ): Result = {
+    throw new NotImplementedError("TODO")
+  }
+}
+</code></pre>
+</section>
+
+
+<section><pre><code class=scala data-trim>
+class CronTest extends FunSuite with GeneratorDrivenPropertyChecks {
+
+  test("* 11 at 5:10"){
+    assert(Cron.cron(None, Some(11), 5, 10) == (false, 5, 11))
+  }
+}
+</code></pre>
+</section>
+
+
+
+<section><pre><code class=scala data-trim>
+val hour = Gen.choose(0, 23)
+val minute = Gen.choose(0, 59)
+val hourSpec = Gen.option(hour)
+val minuteSpec = Gen.option(minute)
+
+def isValidHour(hour: Int) = hour &gt;= 0 &amp;&amp; hour &lt;= 23
+def isValidMinute(minute: Int) = minute &gt;= 0 &amp;&amp; minute &lt;= 59
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+
+def cronTest(name: String)(
+  body: (Option[Int], Option[Int], Int, Int) =&gt; Unit): Unit = {
+  test(name) {
+    forAll(hourSpec, minuteSpec, hour, minute) {
+      (hourSpec, minuteSpec, hour, minute) =&gt; {
+      whenever(
+        isValidHour(hour) &amp;&amp; isValidMinute(minute) &amp;&amp;
+          isValidHour(hourSpec.getOrElse(0)) &amp;&amp;
+          isValidMinute(minuteSpec.getOrElse(0))
+      ) {
+        body(hourSpec, minuteSpec, hour, minute)
+      }
+}}}}
+</code></pre>
+</section>
+<section><pre><code class=scala data-trim>
+
+  def matchesSpec(
+    hourSpec: Option[Int], minuteSpec: Option[Int],
+    resultHour: Int, resultMinute: Int
+  ): Boolean = {
+    for (v &lt;- hourSpec) if(v != resultHour) return false
+    for (v &lt;- minuteSpec) if(v != resultMinute) return false
+    return true
+  }
+
+cronTest("Should produces an admissible answer") {
+  (hourSpec, minuteSpec, hour, minute) =&gt; {
+    val (_, resultHour, resultMinute) = Cron.cron(
+      hourSpec, minuteSpec, hour, minute)
+    assert(
+      matchesSpec(hourSpec, minuteSpec, resultHour, resultMinute)
+    )
+}}
+
+</code></pre>
+</section>
+
+
+<section><pre><code class=scala data-trim>
+def before[T](a: T, b: T)(implicit ordering: Ordering[T]): Boolean = {
+  ordering.compare(a, b) &lt;= 0
+}
+
+def range(start: Cron.Result, end: Cron.Result) = {
+  for(
+    today &lt;- List(false, true); minute &lt;- 0 to 59; hour &lt;- 0 to 23;
+    when = (today, hour, minute);
+    if(before(start, when) &amp;&amp; !before(end, when))
+  ) yield when
+}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+cronTest("No earlier value matches the spec"){
+  (hourSpec, minuteSpec, hour, minute) =&gt; {
+    val result = Cron.cron(hourSpec, minuteSpec, hour, minute);
+    for(
+      (_, earlierHour, earlierMinute) &lt;- range(
+        (false, hour, minute), result)
+    ){
+      assert(!matchesSpec(
+        hourSpec, minuteSpec, earlierHour, earlierMinute))
+    }}}
+
+</code></pre>
+</section>
+
+
+
+<section><pre><code class=scala data-trim>
+cronTest("Being more permissive should result in an earlier value") {
+  (hourSpec, minuteSpec, hour, minute) =&gt; {
+    val base = Cron.cron(hourSpec, minuteSpec, hour, minute)
+    assert(before(Cron.cron(hourSpec, None, hour, minute), base))
+    assert(before(Cron.cron(None, minuteSpec, hour, minute), base))
+  }}
+</code></pre>
+</section>
+
+</section>
+
+<section>
+    <h2>Shrinking Puzzler</h2>
+
+<pre><code class=scala data-trim>
+case class Foo(n: Int);
+
+class WhatShrink extends FunSuite with GeneratorDrivenPropertyChecks{
+  implicit val arb = Arbitrary[Foo](
+    for(c <- Gen.const(Foo(10))) yield c
+  )
+  implicit val shrink = Shrink[Foo]((foo: Foo) => {
+    if(foo.n > 0) Stream(Foo(foo.n - 1))
+    else Stream()
+  })
+  test("Boom"){
+    forAll{(f: Foo, g: Foo) =>
+      println((f, g));
+      assert(false)
+  }}
+}
+</code></pre>
+          </section>
+
+<section>
+<section>
+<h2>Problem #4: Flood fill</h2>
+<p class=fragment>(Bonus Question)</p>
+</section>
+
+<section>
+<ul>
+<li>We have a rectangular grid of boolean values, and coordinates i, j into this grid.</li>
+<li>If grid(i)(j) is true, do nothing. Else, change it to true and also flood fill from any neighbours (not
+  diagonals).</li>
+</ul>
+
+<a href="https://en.wikipedia.org/wiki/Flood_fill#/media/File:Recursive_Flood_Fill_4_(aka).gif"><img src="images/floodfill.gif"/></a>
+<p><a href="https://en.wikipedia.org/wiki/Flood_fill">en.wikipedia.org/wiki/Flood_fill</a></p>
+</section>
+
+
+<section><pre><code class=scala data-trim>
+class Grid private(
+  val rows: Int, val columns: Int,
+  private val data: Array[Array[Boolean]]
+) {
+  def this(rows: Int, columns: Int) = this(
+    rows, columns, Array.fill(rows, columns)(false)
+  )
+  def apply(i: Int, j: Int) = data(i)(j)
+  def update(i: Int, j: Int, value: Boolean) = data(i)(j) = value
+  override def clone(): Grid = new Grid(
+    this.rows, this.columns, this.data.map(_.clone())
+  )
+
+  def floodFill(i: Int, j: Int) {
+    throw new NotImplementedError("TODO")
+  }
+}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+test("can flood fill") {
+  forAll{
+    (_grid: Grid, i : Int, j: Int) => {
+      whenever(validCoordinates(_grid, i, j)) {
+        val grid = _grid.clone()
+        grid.floodFill(i, j)
+      }}}}
+</code></pre>
+</section>
+
+
+<section><pre><code class=scala data-trim>
+test("flood fill increases count") {
+  forAll{
+    (_grid: Grid, i : Int, j: Int) =&gt; {
+      whenever(validCoordinates(_grid, i, j)) {
+        val grid = _grid.clone()
+        grid(i, j) = false;
+        val c0 = grid.count
+        grid.floodFill(i, j)
+        assert(grid.count &gt; c0)
+      }}}}
+</code></pre>
+</section>
+
+<section><pre><code class=scala data-trim>
+test("commutes with transposition"){
+  forAll {
+    (_grid: Grid, i: Int, j: Int) =&gt; {
+      whenever(validCoordinates(_grid, i, j)) {
+        val grid = _grid.clone()
+        val gridT = grid.transpose;
+        gridT.floodFill(j, i)
+        grid.floodFill(i, j)
+        assert(gridT.transpose == grid)
+      }}}}
+</code></pre>
+</section>
+
+</section>
+<section>
+<h2>And that's a wrap</h2>
+<p class=fragment>Any questions?</p>
+</section>
+</section>
+
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
