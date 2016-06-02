@@ -105,7 +105,7 @@ class TestSomeStuffWithScalaCheck
 
   test("Some more general maths"){
     forAll{
-      (x: Int, y: Int) => {
+      (x: Int, y: Int) =&gt; {
         assert(x + y == y + x)
       }
     }
@@ -142,15 +142,19 @@ object RunLength {
 <pre><code class=scala data-trim>
 import org.scalatest.FunSuite
 
-class RunLengthExampleTest extends FunSuite {
+class RunLengthExampleTest
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks {
+
   test("Simple example with no repeats"){
     assert(RunLength.encode(List(1, 2, 3)) == List(
-        (1, 1), (1, 2), (1, 3)))
-  }
+        (1, 1), (1, 2), (1, 3)))}
 
   test("Simple example with all repeats"){
-    assert(RunLength.encode(List(1, 1, 1)) == List((3, 1)))
-  }
+    assert(RunLength.encode(List(1, 1, 1)) == List((3, 1)))}
+
+  test("Encode doesn't crash") {
+    forAll { (xs: List[Int]) =&gt; { RunLength.encode(xs) } }}
 }
 </code></pre>
 </section>
