@@ -154,7 +154,7 @@ class RunLengthExampleTest
     assert(RunLength.encode(List(1, 1, 1)) == List((3, 1)))}
 
   test("Encode doesn't crash") {
-    forAll { (xs: List[Int]) =&gt; { RunLength.encode(xs) } }}
+    forAll { (xs: List[Int]) =&gt; { RunLength.encode(xs); () } }}
 }
 </code></pre>
 </section>
@@ -178,7 +178,7 @@ test("Should never increase the size") {
   forAll {
     (xs: List[Int]) =&gt; {
       val encoded = RunLength.encode(xs)
-      assert(encoded.length <= xs.length)
+      assert(encoded.length &lt;= xs.length)
     }
   }
 }
@@ -187,6 +187,46 @@ test("Should never increase the size") {
 
 </section>
 
+<section>
+<section><h2>Gotcha alert!</h2></section>
+<section>
+<pre><code class=scala data-trim>
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import scala.collection.mutable.ArrayBuffer
+
+class BrokenMutatingTest
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks {
+
+  test("Mutating an argument") {
+    forAll() { (ints: ArrayBuffer[Int], target: Int) =&gt; {
+      ints.append(target)
+      assert(false)
+    }}}
+}
+</code></pre>
+</section>
+<section>
+<pre><code class=scala data-trim>
+import org.scalatest.FunSuite
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import scala.collection.mutable.ArrayBuffer
+
+class BrokenMutatingTest
+    extends FunSuite
+    with GeneratorDrivenPropertyChecks {
+
+  test("Mutating an argument") {
+    forAll() { (_ints: ArrayBuffer[Int], target: Int) =&gt; {
+      val ints = _ints.clone()
+      ints.append(target)
+      assert(false)
+    }}}
+}
+</code></pre>
+</section>
+</section>
 <section>
 <section>
 <h2>Problem #2: Binary search</h2>
@@ -285,29 +325,14 @@ test("It should search into the same place after an insert"){
 </code></pre>
 </section>
 </section>
+
 <section>
 <section>
-  <h2>Gotcha alerts!</h2>
+  <h2>Gotcha alert!</h2>
 </section>
+<section>
 
-<section><pre><code class=scala data-trim>
-import org.scalacheck.Gen
-import org.scalatest.FunSuite
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-
-class BrokenBinarySearchTest
-    extends FunSuite
-    with GeneratorDrivenPropertyChecks{
-  test("The result of an insert should be sorted (broken)"){
-    forAll(){(ints: ArrayBuffer[Int], target: Int) =&gt; {
-      val insertPoint = BinarySearch.binarySearch(ints, target);
-      ints.insert(insertPoint, target);
-      assert(isSorted(ints));
-    }}}
-</code></pre>
-</section>
-
-<section><pre><code class=scala data-trim>
+<pre><code class=scala data-trim>
 import org.scalacheck.Gen
 import org.scalatest.FunSuite
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
