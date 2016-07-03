@@ -31,4 +31,5 @@
 <section><a href="https://commons.wikimedia.org/wiki/File:US_Navy_100914-N-5853P-152_Machinery_Repairman_Fireman_Emillia_Castaneda_operates_a_milling_machine_to_repair_a_broken_holding_bracket_for_a_bell_a.jpg"><img src="images/milling-machine.jpg"></a></section>
 <section><a href="https://commons.wikimedia.org/wiki/File:Prim_clockwork.jpg"><img src="images/clockwork.jpg"></a></section>
 <section><a href="https://wiki.haskell.org/File:HaskellLogoStyPreview-1.png"><img style="box-shadow: none;" src="images/haskell.png"></a></section>
+<section><a href="https://en.wikipedia.org/wiki/1906_San_Francisco_earthquake#/media/File:Post-and-Grant-Avenue.-Look.jpg"><img style="box-shadow: none;" src="images/san-francisco-earthquake.jpg"></a></section>
 
