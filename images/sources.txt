@@ -32,4 +32,7 @@
 <section><a href="https://commons.wikimedia.org/wiki/File:Prim_clockwork.jpg"><img src="images/clockwork.jpg"></a></section>
 <section><a href="https://wiki.haskell.org/File:HaskellLogoStyPreview-1.png"><img style="box-shadow: none;" src="images/haskell.png"></a></section>
 <section><a href="https://en.wikipedia.org/wiki/1906_San_Francisco_earthquake#/media/File:Post-and-Grant-Avenue.-Look.jpg"><img style="box-shadow: none;" src="images/san-francisco-earthquake.jpg"></a></section>
+<section><a href="https://www.python.org/community/logos/"><img style="box-shadow: none;" src=images/python.png></a></section>
+<section><a href="https://duke.kenai.com/"><img style="box-shadow: none;" src=images/java.png></a></section>
+<section><a href="https://commons.wikimedia.org/wiki/File:World_line.svg"><img style="box-shadow: none;" width=600 src=images/2000px-World_line.svg.png></a></section>
 
