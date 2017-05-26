@@ -84,6 +84,11 @@
 <section><img src="images/correctness-diagrams/execution-plus-region.png"></section>
 <section><img src="images/correctness-diagrams/show-possible.png"></section>
 <section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
+<section><img src="images/correctness-diagrams/statically-valid.png"></section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/confusion.png"></section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
 
 <section><pre><code class="python" data-trim>
 from binaryornot.helpers import is_binary_string
@@ -117,10 +122,12 @@ def test_decode_inverts_encode(s):
 </code></pre>
 
 <pre class=fragment><code data-trim>
-UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2...
+
+E       assert b'\xf1\x80\x80\x80\x80' == b'\xed\xa3\x80\x00\x80'
+E         At index 0 diff: 241 != 237
 
 Falsifying example: test_decode_inverts_encode(
-  s='\xc2\xc2\x80'
+  s=b'\xf1\x80\x80\x80\x80' 
 )
 </code></pre></section>
 
