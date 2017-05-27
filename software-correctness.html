@@ -47,6 +47,16 @@
       section.prose ul {
         text-align: left;
       }
+
+      ul {
+        padding: 0;
+      }
+
+      p.lessig{
+        font-variant: small-caps;
+        font-size: 70pt;
+      }
+
       pre.output {
         display: block;
         padding: 2em;
@@ -76,7 +86,16 @@
       <div class="slides">
         <section>
           <h1>Tools for Software Correctness</h1>
+          <p>David R. MacIver / drmaciver.com</p>
         </section>
+
+<section>
+      <p class=lessig>tools</p>
+</section>
+
+<section>
+      <p class=lessig>complexity</p>
+</section>
 
 <section><img src="images/correctness-diagrams/nodes.png"></section>
 <section><img src="images/correctness-diagrams/nodes-with-path.png"></section>
@@ -84,12 +103,89 @@
 <section><img src="images/correctness-diagrams/execution-plus-region.png"></section>
 <section><img src="images/correctness-diagrams/show-possible.png"></section>
 <section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
+<section><img src="images/correctness-diagrams/statically-valid.png"></section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section>
+      <p class=lessig>detection</p>
+</section>
 <section><img src="images/correctness-diagrams/confusion.png"></section>
+<section>
+      <p class=lessig>size</p>
+</section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
+<section>
+      <p class=lessig>coverage</p>
+</section>
+<section><img src="images/correctness-diagrams/coverage.png"></section>
+
+
+<section><pre><code class="C" data-trim>
+void do_a_thing(int i){
+}
+</code></pre>
+
+<p class=fragment>
+2^32 &asymp; 4 billion
+</p>
+</section>
+
+<section><pre><code class="C" data-trim>
+void do_a_thing(int i){
+  assert(i != 42);
+}
+</code></pre></section>
+
+
+<section><pre><code class="C" data-trim>
+void do_many_things(int a, int b, ..., int c){
+  if(a){
+    do_a();
+  }
+  if(b){
+    do_b();
+  }
+  ...
+  if(z){
+    do_z();
+  }
+}
+</code></pre>
+
+<p class=fragment>
+2^26 &asymp; 70 million
+</p>
+
+</section>
+
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
 <section><img src="images/correctness-diagrams/property-based-tests.png"></section>
-<section><img src="images/correctness-diagrams/statically-valid.png"></section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/property-based-tests-optimistic.png"></section>
+
+<section>
+      <p class=lessig>specifics</p>
+</section>
+
+<section>
+<h3>Example-based Testing</h3>
+<ul>
+<li class=fragment>Starting from here</li>
+<li class=fragment>Do this</li>
+<li class=fragment>Check it worked</li>
+</ul>
+</section>
+
+<section>
+<h3>Property-based Testing</h3>
+<ul>
+<li class=fragment>Starting from ????</li>
+<li class=fragment>Do ????</li>
+<li class=fragment>Check it worked</li>
+</ul>
+</section>
+
 
 <section><pre><code class="python" data-trim>
 from binaryornot.helpers import is_binary_string
@@ -239,7 +335,8 @@ Falsifying example: test_a_password_verifies(
 
 </section>
         <section>
-          <h2><a href=http://hypothesis.works/>hypothesis.works</a></h2>
+          <p>David R. MacIver / drmaciver.com</p>
+          <p><a href=http://hypothesis.works/>hypothesis.works</a></p>
         </section>
 
       </div>
@@ -261,7 +358,8 @@ Falsifying example: test_a_password_verifies(
         dependencies: [
           { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
           { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
-          { src: 'reveal/plugin/notes/notes.js', async: true }
+          { src: 'reveal/plugin/notes/notes.js', async: true },
+          { src: 'reveal/plugin/math/math.js', async: true },
         ]
       });
 

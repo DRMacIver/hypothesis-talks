@@ -291,6 +291,11 @@ Falsifying example: test_a_password_verifies(
 
         transition: 'fade',
 
+        math: {
+            mathjax: 'MathJax/MathJax.js',
+            config: 'TeX-AMS_HTML-full',
+        },
+
         dependencies: [
           { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
           { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
