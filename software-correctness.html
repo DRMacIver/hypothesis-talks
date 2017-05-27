@@ -113,7 +113,6 @@
       <p class=lessig>size</p>
 </section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
-<section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
 <section>
       <p class=lessig>coverage</p>
 </section>
@@ -261,7 +260,7 @@ from hypothesis import given
 from statistics import mean
 
 
-@given(lists(floats(), min_size=1))
+@given(lists(floats(allow_nan=False), min_size=1))
 def test_mean_is_within_bounds(ls):
     assert min(ls) &lt;= mean(ls) &lt;= max(ls)
 
@@ -306,6 +305,8 @@ Falsifying example: test_normalization_of_separated(
 
 <section>
 <pre><code class="python" data-trim>
+from argon2 import PasswordHasher
+
 @given(
     password=st.text(), time_cost=st.integers(1, 10),
     parallelism=st.integers(1, 10), memory_cost=st.integers(8, 2048),
