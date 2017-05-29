@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>Tools for Software Correctness</title>
+    <title>Tools for writing correct software</title>
 
     <meta name="description" content="Making your tests do the work for you.">
     <meta name="author" content="David R. MacIver">
@@ -76,6 +76,16 @@
         margin: auto;
         width: 300px; height: 150px;
       }
+q {
+  quotes: "" "" "" "";
+}
+q:before {
+    content: open-quote;
+}
+q:after {
+    content: close-quote;
+}
+
     </style>
   </head>
 
@@ -85,7 +95,7 @@
 
       <div class="slides">
         <section>
-          <h1>Tools for Software Correctness</h1>
+    <h1>Tools for writing correct software</h1>
           <p>David R. MacIver / drmaciver.com</p>
         </section>
 
@@ -103,7 +113,6 @@
 <section><img src="images/correctness-diagrams/execution-plus-region.png"></section>
 <section><img src="images/correctness-diagrams/show-possible.png"></section>
 <section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
-<section><img src="images/correctness-diagrams/statically-valid.png"></section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section>
       <p class=lessig>detection</p>
@@ -155,18 +164,40 @@ void do_many_things(int a, int b, ..., int c){
 2^26 &asymp; 70 million
 </p>
 
+<p class=fragment>
+26^2 &asymp; 700
+</p>
+
 </section>
 
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
+
+<section>
+    <p class=lessig>abandon hope</p>
+</section>
+
+<section>
+    <p class=lessig>more</p>
+</section>
+
+<section>
+    <p class=lessig>less</p>
+</section>
+
+<section><img src="images/correctness-diagrams/statically-valid.png"></section>
+
 <section><img src="images/correctness-diagrams/property-based-tests.png"></section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section><img src="images/correctness-diagrams/property-based-tests-optimistic.png"></section>
 
 <section>
-      <p class=lessig>specifics</p>
+    <p class=lessig>users</p>
 </section>
 
+<section>
+    <p class=lessig>specifics</p>
+</section>
 <section>
 <h3>Example-based Testing</h3>
 <ul>
@@ -335,6 +366,23 @@ Falsifying example: test_a_password_verifies(
 </code></pre>
 
 </section>
+
+<section>
+<p class=lessig>tools</p>
+</section>
+
+<section>
+<p class=lessig>managing complexity</p>
+</section>
+
+<section>
+<p class=lessig>automation</p>
+</section>
+
+<section>
+<p class=lessig>capability</p>
+</section>
+
         <section>
           <p>David R. MacIver / drmaciver.com</p>
           <p><a href=http://hypothesis.works/>hypothesis.works</a></p>
