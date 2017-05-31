@@ -113,6 +113,9 @@ q:after {
 <section><img src="images/correctness-diagrams/execution-plus-region.png"></section>
 <section><img src="images/correctness-diagrams/show-possible.png"></section>
 <section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
+<section>
+      <p class=lessig>testing</p>
+</section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section>
       <p class=lessig>detection</p>
@@ -121,7 +124,6 @@ q:after {
 <section>
       <p class=lessig>size</p>
 </section>
-<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
 <section>
       <p class=lessig>coverage</p>
 </section>
@@ -146,7 +148,7 @@ void do_a_thing(int i){
 
 
 <section><pre><code class="C" data-trim>
-void do_many_things(int a, int b, ..., int c){
+void do_many_things(int a, int b, ..., int z){
   if(a){
     do_a();
   }
@@ -164,10 +166,6 @@ void do_many_things(int a, int b, ..., int c){
 2^26 &asymp; 70 million
 </p>
 
-<p class=fragment>
-26^2 &asymp; 700
-</p>
-
 </section>
 
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
@@ -178,26 +176,25 @@ void do_many_things(int a, int b, ..., int c){
 </section>
 
 <section>
-    <p class=lessig>more</p>
-</section>
-
-<section>
-    <p class=lessig>less</p>
-</section>
-
-<section><img src="images/correctness-diagrams/statically-valid.png"></section>
-
-<section><img src="images/correctness-diagrams/property-based-tests.png"></section>
-<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
-<section><img src="images/correctness-diagrams/property-based-tests-optimistic.png"></section>
-
-<section>
     <p class=lessig>users</p>
 </section>
 
 <section>
-    <p class=lessig>specifics</p>
+    <p class=lessig>shrink</p>
 </section>
+
+<section><img src="images/correctness-diagrams/statically-valid.png"></section>
+
+<section>
+    <p class=lessig>grow</p>
+</section>
+
+
+<section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/property-based-tests.png"></section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/property-based-tests-optimistic.png"></section>
+
 <section>
 <h3>Example-based Testing</h3>
 <ul>
@@ -210,12 +207,15 @@ void do_many_things(int a, int b, ..., int c){
 <section>
 <h3>Property-based Testing</h3>
 <ul>
-<li class=fragment>Starting from ????</li>
-<li class=fragment>Do ????</li>
+<li class=fragment>Starting from ???</li>
+<li class=fragment>Do ???</li>
 <li class=fragment>Check it worked</li>
 </ul>
 </section>
 
+<section>
+    <p class=lessig>hypothesis</p>
+</section>
 
 <section><pre><code class="python" data-trim>
 from binaryornot.helpers import is_binary_string
@@ -368,15 +368,11 @@ Falsifying example: test_a_password_verifies(
 </section>
 
 <section>
-<p class=lessig>tools</p>
+<p class=lessig>complexity</p>
 </section>
 
 <section>
-<p class=lessig>managing complexity</p>
-</section>
-
-<section>
-<p class=lessig>automation</p>
+<p class=lessig>correctness</p>
 </section>
 
 <section>
