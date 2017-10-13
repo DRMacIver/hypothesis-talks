@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Taming Complexity with Tests</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet'; link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 1.5em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+        border:none !important; 
+        box-shadow:none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+
+      ul {
+        padding: 0;
+      }
+
+      p.lessig{
+        font-variant: small-caps;
+        font-size: 70pt;
+      }
+
+      pre.output {
+        display: block;
+        padding: 2em;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        overflow: auto;
+        max-height: 400px;
+        word-wrap: normal;
+        background: #3F3F3F;
+        color: #DCDCDC;
+        font-family: monospace;
+      }
+      
+      .reveal section img.nocomment {
+        box-shadow: none;
+        margin: auto;
+        width: 300px; height: 150px;
+      }
+q {
+  quotes: "" "" "" "";
+}
+q:before {
+    content: open-quote;
+}
+q:after {
+    content: close-quote;
+}
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+    <h1>Property-based testing with Hypothesis</h1>
+          <p>David R. MacIver / drmaciver.com</p>
+          <p>hypothesis.works</p>
+        </section>
+
+        <section>
+        <pre><code class="python" data-trim>
+from .models import User, Project
+from django.test import TestCase
+
+class TestProjectManagement(TestCase):
+    def test_can_add_collaborators_up_to_collaborator_limit(self):
+        project = Project.objects.create(
+            collaborator_limit=2,
+            name="Some project",
+        )
+        alex = User.objects.create(email="alex@example.com")
+        pat = User.objects.create(email="pat@example.com")
+        project.add_collaborator(alex)
+        project.add_collaborator(pat)
+        self.assertTrue(project.team_contains(alex))
+        self.assertTrue(project.team_contains(pat))
+        </code></pre>
+  </section>
+
+
+    <section>
+        <pre><code class=python data-trim>
+
+from .models import User, Project
+from hypothesis.extra.django import TestCase
+from hypothesis import given, assume
+from hypothesis.extra.django.models import models
+from hypothesis.strategies import lists, integers
+
+class TestProjectManagement(TestCase):
+    @given(
+        models(Project, collaborator_limit=integers(
+            min_value=0, max_value=20)),
+        lists(models(User), max_size=20))
+    def test_can_add_collaborators_up_to_collaborator_limit(
+        self, project, collaborators
+    ):
+        assume(len(collaborators) &lt;= project.collaborator_limit)
+        for c in collaborators:
+            project.add_collaborator(c)
+        </code></pre>
+    </section>
+
+
+<section><p class=lessig>how do we find bugs?</p></section>
+
+<section><img src="images/correctness-diagrams/region.png"></section>
+<section><img src="images/correctness-diagrams/possible-region.png"></section>
+<section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section>
+    <p class=lessig>what is a state?</p>
+</section>
+<section data-background-image="images/galaxy.jpg"></section>
+<section><a href="https://en.wikipedia.org/wiki/Commodore_64#/media/File:C64c_system.jpg"><img src=images/computer.jpg></a></section>
+<section data-background-image="images/assembly-snapshot.png"></section>
+
+<section>
+    <p class=lessig>up to equivalence</p>
+</section>
+
+<section><pre><code class="C" data-trim>
+void do_a_thing(int i){
+}
+</code></pre>
+
+<p class=fragment>
+2^32 &asymp; 4 billion <span class=fragment> &asymp; 1</span>
+</p>
+</section>
+
+<section><pre><code class="C" data-trim>
+void do_a_thing(int i){
+  assert(i != 42);
+}
+</code></pre>
+
+<p class=fragment>
+2^32 &asymp; 4 billion <span class=fragment> &asymp; 2</span>
+</p>
+
+</section>
+
+
+<section><pre><code class="C" data-trim>
+void do_many_things(bool a, bool b, ..., bool z){
+  if(a){
+    do_a();
+  }
+  if(b){
+    do_b();
+  }
+  ...
+  if(z){
+    do_z();
+  }
+  done_stuff();
+}
+</code></pre>
+
+<p class=fragment>
+2^26 &asymp; 70 million <span class=fragment> &asymp; 70 million</span>
+</p>
+
+</section>
+
+<section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/pessimistic-tests.png"></section>
+<section><img src="images/correctness-diagrams/property-based-tests.png"></section>
+
+<section>
+    <p class=lessig>abandon hope</p>
+</section>
+
+<section>
+    <p class=lessig>the fuzzing assumption</p>
+</section>
+
+<section>
+    <p class=lessig>bugs are...</p>
+</section>
+
+
+<section><p class=lessig>obvious</p></section>
+
+<section><pre><code class="python" data-trim>
+from hypothesis import given
+import hypothesis.strategies as st
+
+@given(st.lists(st.integers()))
+def test_min_max(ls):
+    assert min(ls) &lt;= max(ls)
+</code></pre>
+
+<pre class=fragment><code data-trim>
+@given(st.lists(st.integers()))
+def test_min_max(ls):
+&gt;    assert min(ls) <= max(ls)
+E    ValueError: min() arg is an empty sequence
+
+test_input_variation.py:28: ValueError
+Falsifying  example: test_min_max(ls=[])
+</code></pre>
+</section>
+<section><p class=lessig>common</p></section>
+
+
+<section><pre><code class="python" data-trim>
+from binaryornot.helpers import is_binary_string
+
+from hypothesis import given
+from hypothesis.strategies import binary
+
+@given(binary())
+def test_never_crashes(s):
+    is_binary_string(s)
+</code></pre>
+
+<pre class=fragment><code data-trim>
+UnicodeDecodeError: 'charmap' codec can't decode byte 0xae...
+
+Falsifying example: test_never_crashes(
+  s=b'\xae\xc5\xdc'
+)
+</code></pre></section>
+
+<section><p class=lessig>easy to find!</p></section>
+
+<section><img src="images/correctness-diagrams/circle1.png"></section>
+<section><img src="images/correctness-diagrams/circle2.png"></section>
+<section><img src="images/correctness-diagrams/circle3.png"></section>
+
+<section><p class=lessig>lies</p></section>
+
+<section><p class=lessig>decoupling</p></section>
+
+<section>
+<pre><code class="python" data-trim>
+
+from hypothesis.strategies import floats, lists
+from hypothesis import given
+from statistics import mean
+
+
+@given(lists(floats(allow_nan=False), min_size=1))
+def test_mean_is_within_bounds(ls):
+    assert min(ls) &lt;= mean(ls) &lt;= max(ls)
+
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>
+OverflowError: integer division result too large for a float
+
+Falsifying example: test_mean_is_within_bounds(
+  ls=[8.988465674311579e+307, 8.98846567431158e+307]
+)
+
+</code></pre></section>
+
+
+<section><p class=lessig>state collapse</p></section>
+<section><pre><code class="python" data-trim>
+def collapsing_states():
+    ls = list(range(100))
+    random.shuffle(ls)
+    return sorted(ls)
+</code></pre></section>
+
+<section><img src="images/treegraph.png"></section>
+<section><img src="images/digraph2.png"></section>
+
+<section><p class=lessig>do states collapse?</p></section>
+<section><p class=lessig>test it!</p></section>
+
+<section><p class=lessig>serialization</p></section>
+
+<section><pre><code class="python" data-trim>
+from dateutil.parser import parse
+
+from hypothesis import given, settings
+from hypothesis.extra.datetime import datetimes
+
+
+@given(datetimes())
+def test_can_parse_iso_format(dt):
+    formatted = dt.isoformat()
+    assert formatted == parse(formatted).isoformat()
+</code></pre>
+<pre class=fragment><code data-trim>
+
+E       assert '0005-01-01T00:00:05' == '0001-05-01T00:00:05'
+E         - 0005-01-01T00:00:05
+E         ?    ^  ^
+E         + 0001-05-01T00:00:05
+E         ?    ^  ^
+
+Falsifying example: test_can_parse_iso_format(
+  dt=datetime.datetime(5, 1, 1, 0, 0, 5)
+)
+</code></pre></section>
+
+<section><p class=lessig>normalization</p></section>
+
+<section><pre><code class="python" data-trim>
+import unicodedata
+from hypothesis import given
+import hypothesis.strategies as st
+
+def normalize_username(username):
+    username = unicodedata.normalize("NFC", username)
+    return username.lower()
+
+
+@given(st.text())
+def test_normalization_is_case_insensitive(username):
+    assert normalize_username(username.upper()) == \
+      normalize_username(username)
+</code></pre>
+<pre class=fragment><code data-trim>
+    def test_normalization_is_case_insensitive(username):
+&gt;       assert normalize_username(username.upper()) == \
+             normalize_username(username)
+E       AssertionError: assert 'i' == 'ı'
+E         - i
+E         + ı
+
+test_input_variation.py:52: AssertionError
+Falsifying example: test_normalization_is_case_insensitive(
+  username='ı'
+)
+</code></pre></section>
+
+<section>
+<p class=lessig>correctness</p>
+</section>
+
+        <section>
+          <p>David R. MacIver / drmaciver.com</p>
+          <p><a href=http://hypothesis.works/>hypothesis.works</a></p>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true },
+          { src: 'reveal/plugin/math/math.js', async: true },
+          { src: 'reveal/lib/js/fullscreen-img.js', async: true },
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
