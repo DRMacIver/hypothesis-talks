@@ -131,23 +131,21 @@ from hypothesis.extra.django.models import models
 from hypothesis.strategies import lists, integers
 
 class TestProjectManagement(TestCase):
-    @given(
-        models(Project, collaborator_limit=integers(
-            min_value=0, max_value=20)),
-        lists(models(User), max_size=20))
+    @given(models(Project, collaborator_limit=integers(0, 20)),
+           lists(models(User), max_size=20))
     def test_can_add_collaborators_up_to_collaborator_limit(
-        self, project, collaborators
-    ):
+        self, project, collaborators):
         assume(len(collaborators) &lt;= project.collaborator_limit)
         for c in collaborators:
             project.add_collaborator(c)
+        for c in collaborators:
+            self.assertTrue(project.team_contains(c))
         </code></pre>
     </section>
 
 
 <section><p class=lessig>how do we find bugs?</p></section>
 
-<section><img src="images/correctness-diagrams/region.png"></section>
 <section><img src="images/correctness-diagrams/possible-region.png"></section>
 <section><img src="images/correctness-diagrams/show-ideal-possible.png"></section>
 <section><img src="images/correctness-diagrams/optimistic-tests.png"></section>
@@ -220,7 +218,7 @@ void do_many_things(bool a, bool b, ..., bool z){
 </section>
 
 <section>
-    <p class=lessig>bugs are...</p>
+    <p class=lessig>most bugs are...</p>
 </section>
 
 
@@ -273,7 +271,7 @@ Falsifying example: test_never_crashes(
 <section><img src="images/correctness-diagrams/circle2.png"></section>
 <section><img src="images/correctness-diagrams/circle3.png"></section>
 
-<section><p class=lessig>lies</p></section>
+<section><p class=lessig>force multipliers</p></section>
 
 <section><p class=lessig>decoupling</p></section>
 
@@ -302,15 +300,15 @@ Falsifying example: test_mean_is_within_bounds(
 
 
 <section><p class=lessig>state collapse</p></section>
+<section><img src="images/treegraph.png"></section>
+<section><img src="images/digraph2.png"></section>
+
 <section><pre><code class="python" data-trim>
 def collapsing_states():
     ls = list(range(100))
     random.shuffle(ls)
     return sorted(ls)
 </code></pre></section>
-
-<section><img src="images/treegraph.png"></section>
-<section><img src="images/digraph2.png"></section>
 
 <section><p class=lessig>do states collapse?</p></section>
 <section><p class=lessig>test it!</p></section>
@@ -374,7 +372,11 @@ Falsifying example: test_normalization_is_case_insensitive(
 </code></pre></section>
 
 <section>
-<p class=lessig>correctness</p>
+<p class=lessig>correct? <span class=fragment>no</span></p>
+</section>
+
+<section>
+<p class=lessig>confident</span></p>
 </section>
 
         <section>
