@@ -169,16 +169,6 @@ print("Hello World")
         </section>
 
         <section class=prominent>
-          what is correct software?
-
-          <ul>
-            <li class=fragment>no bugs</li>
-            <li class=fragment>matches the spec</li>
-            <li class=fragment>fictional</li>
-          </ul>
-        </section>
-
-        <section class=prominent>
           <p>but verification?!?</p>
         </section>
 
@@ -205,7 +195,7 @@ print("Hello World")
 
 <section>
 <p class=lessig>useful software matters</p>
-<p class="lessig fragment">...and bug aren't useful</p>
+<p class="lessig fragment">...and bugs aren't useful</p>
 </section>
 
 <section>
@@ -257,6 +247,7 @@ testing <span class=fragment>is boring and difficult</span>
 <ul>
 <li>Must be at least eight characters.</li>
 <li>Must contain a lower-case letter, an upper-case letter, a number and a symbol.</li>
+<li>All passwords satisfying these are valid.</li>
 </ul>
 
 <div class=thanks>
@@ -347,9 +338,9 @@ def test_short_passwords_are_all_invalid(s):
     def test_short_passwords_are_all_invalid(s):
 &gt;       assert not is_good_password(s)
 E       AssertionError: assert not True
-E        +  where True = is_good_password('aA0!')
+E        +  where True = is_good_password('a0!')
 
-Falsifying example: test_short_passwords_are_all_invalid(s='aA0!')
+Falsifying example: test_short_passwords_are_all_invalid(s='a0!')
 </code></pre></section>
 
 <section><pre><code class="python" data-trim>
@@ -406,14 +397,36 @@ def test_all_valid_passwords_are_good(s):
     def test_all_valid_passwords_are_good(s):
 &gt;       assert is_good_password(s)
 E       AssertionError: assert False
-E        +  where False = is_good_password('aX0!aaaa')
+E        +  where False = is_good_password('x0!!!!!0')
 
-Falsifying example: test_all_valid_passwords_are_good(s='aX0!aaaa')
+Falsifying example: test_all_valid_passwords_are_good(s='x0!!!!!0')
 </code></pre>
+
+<p class=fragment style='color: red; font-variant: small-caps;'>NB: cheating</p>
+
 </section>
 
 <section><pre><code class="python" data-trim>
 lower_letters = "abcdefghijklmnopqrstuvwyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwxyz"
 upper_letters = lower_letters.upper()
 letters = lower_letters + upper_letters
 digits = "0123456789"
