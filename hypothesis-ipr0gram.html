@@ -303,11 +303,6 @@ E        +  where False = is_good_password('aaaaaA1!')
 </code></pre></section>
 
 <section><pre><code class="python" data-trim>
-def is_good_password(pw):
-    return pw == "aaaaaA1!" # My way or the high way
-</code></pre></section>
-
-<section><pre><code class="python" data-trim>
 lower_letters = "abcdefghijklmnopqrstuvwyz"
 upper_letters = lower_letters.upper()
 letters = lower_letters + upper_letters
@@ -375,6 +370,11 @@ def is_good_password(pw):
 <section class=prominent>
 <p>so it works now, right?</p>
 </section>
+
+<section><pre><code class="python" data-trim>
+def is_good_password(pw):
+    return pw == "aaaaaA1!" # My way or the high way
+</code></pre></section>
 
 <section><pre><code class="python" data-trim>
 REQUIRED = [string.ascii_lowercase, string.ascii_uppercase,
