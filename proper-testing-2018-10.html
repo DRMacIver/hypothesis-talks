@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Proper testing with Hypothesis</title>
+
+    <meta name="description" content="Making your tests do the work for you.">
+    <meta name="author" content="David R. MacIver">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/simple.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet'; link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 { font-size: 1.5em; }
+      .reveal h2 { font-size: 1.5em; }
+      .reveal h3 { font-size: 1.25em; }
+      .reveal pre code {
+        padding: 20px 50px 20px 50px !important;
+      }
+      img {
+        border: none !important;
+        border:none !important; 
+        box-shadow:none !important;
+      }
+      section.prose ul {
+        text-align: left;
+      }
+
+      ul {
+        padding: 0;
+      }
+
+      p.lessig{
+        font-variant: small-caps;
+        font-size: 70pt;
+      }
+
+      .reveal .prominent, section.promiment p{
+        font-variant: small-caps !important;
+        font-size: 50pt;
+      }
+
+      .reveal .texty{
+        font-size: 50pt;
+      }
+
+      .reveal div.thanks {
+        font-size: 14pt;
+        margin-top: 20pt;
+      }
+      .reveal div.thanks p {
+        margin: 0;
+      }
+
+      pre.output {
+        display: block;
+        padding: 2em;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        overflow: auto;
+        max-height: 400px;
+        word-wrap: normal;
+        background: #3F3F3F;
+        color: #DCDCDC;
+        font-family: monospace;
+      }
+      
+      .reveal section img.nocomment {
+        box-shadow: none;
+        margin: auto;
+        width: 300px; height: 150px;
+      }
+q {
+  quotes: "" "" "" "";
+}
+q:before {
+    content: open-quote;
+}
+q:after {
+    content: close-quote;
+}
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+    <h1>Proper testing with Hypothesis</h1>
+          <p>David R. MacIver / drmaciver.com</p>
+          <p>hypothesis.works</p>
+        </section>
+
+<section class=prominent>
+testing <span class=fragment>is boring and difficult</span>
+</section>
+
+<section class=prominent>
+...but it doesn't have to be.
+</section>
+
+<section><pre><code class="python" data-trim>
+from dateutil.parser import parse
+
+from hypothesis import given, settings
+from hypothesis.strategies import datetimes
+
+
+@given(datetimes())
+def test_can_parse_iso_format(dt):
+    formatted = dt.isoformat()
+    assert formatted == parse(formatted).isoformat()
+</code></pre>
+<pre class=fragment><code data-trim>
+
+E       assert '0005-01-01T00:00:05' == '0001-05-01T00:00:05'
+E         - 0005-01-01T00:00:05
+E         ?    ^  ^
+E         + 0001-05-01T00:00:05
+E         ?    ^  ^
+
+Falsifying example: test_can_parse_iso_format(
+  dt=datetime.datetime(5, 1, 1, 0, 0, 5)
+)
+</code></pre></section>
+
+<section>
+<h3>Anatomy of a Test</h3>
+<ol>
+<li class=fragment>Given this input.</li>
+<li class=fragment>Do this thing.</li>
+<li class=fragment>This is what should have happened.</li>
+</ol>
+</section>
+
+<section>
+<h3>Anatomy of a Proper(ty-based) Test</h3>
+<ol>
+<li>Given <em>some</em> input.</li>
+<li>Do this thing.</li>
+<li>This is what should have happened.</li>
+</ol>
+</section>
+
+<section class=prominent>
+why does this matter?
+</section>
+
+<section class=prominent>
+testing is boring, difficult <span class=fragment>and vital</span>
+</section>
+
+<section>
+<h3>Simple Testing Can Prevent Most Critical Failures</h3>
+<p>
+Yuan, Ding, et al. OSDI. 2014.
+</p>
+</section>
+
+<section>
+<h3>Simple Testing Can Prevent Most Critical Failures</h3>
+<ul>
+<li class=fragment>92% of catastrophic system failures result from incorrect handling of non-fatal errors.</li>
+<li class=fragment>77% can be reproduced by a unit test <span class=fragment>(for some value of unit test).</span></li>
+</ul>
+</section>
+
+<section><pre><code class="python" data-trim>
+from binaryornot.helpers import is_binary_string
+
+from hypothesis import given
+from hypothesis.strategies import binary
+
+@given(binary())
+def test_never_crashes(s):
+    is_binary_string(s)
+</code></pre>
+
+<pre class=fragment><code data-trim>
+UnicodeDecodeError: 'charmap' codec can't decode byte 0xae...
+
+Falsifying example: test_never_crashes(
+  s=b'\xae\xc5\xdc'
+)
+</code></pre></section>
+
+<section class=prominent>
+unpredictability multiplies
+</section>
+
+<section class=prominent>
+<p>unpredictable components</p>
+<p class=fragment><em>very</em> unpredictable systems</p>
+</section>
+
+<section class=prominent>
+how do we write tests like this?
+</section>
+
+<section>
+<h2>Password Requirements</h2>
+<ul>
+<li>Must be at least eight characters.</li>
+<li>Must contain a lower-case letter, an upper-case letter, a number and a symbol.</li>
+<li>All passwords satisfying these are valid.</li>
+</ul>
+
+<div class=thanks>
+<p>Thanks to JR Heard for this example</p>
+<p>http://blog.jrheard.com/hypothesis-and-pexpect</p>
+</div>
+</section>
+
+<section><pre><code class="python" data-trim>
+def is_good_password(s):
+  return True # Eh, probably good enough
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+def test_short_is_not_allowed():
+    assert not is_good_password("a")
+
+
+def test_requires_character_of_each_type():
+    assert not is_good_password("aaaaaaa")
+</code></pre></section>
+
+<section><pre><code class="python">    def test_short_is_not_allowed():
+&gt;       assert not is_good_password("a")
+E       AssertionError: assert not True
+E        +  where True = is_good_password('a')
+
+    def test_requires_character_of_each_type():
+&gt;       assert not is_good_password("aaaaaaa")
+E       AssertionError: assert not True
+E        +  where True = is_good_password('aaaaaaa')
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+def is_good_password(s):
+  return False # Passwords are a bad security model anyway
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+def test_allows_password_satisfying_the_rules():
+    assert is_good_password("aaaaaA1!")
+</code></pre>
+
+<pre><code class="python">    def test_allows_password_satisfying_the_rules():
+&gt;       assert is_good_password("aaaaaA1!")
+E       AssertionError: assert False
+E        +  where False = is_good_password('aaaaaA1!')
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section class=prominent>
+<p>have we written enough tests?</p>
+<p class=fragment>of course not</p>
+</section>
+
+<section class=prominent>
+<p>oh no, we have to write <em>more</em>?</p>
+<p class=fragment>let's try something different</p>
+</section>
+
+<section><pre><code class="python" data-trim>
+from hypothesis import given, strategies as st
+
+SYMBOLS = '!@#$%^&amp;*()-_=+.,'
+VALID_PASSWORD_CHARS = string.ascii_letters + string.digits + SYMBOLS
+
+@given(st.text(alphabet=VALID_PASSWORD_CHARS, max_size=7))
+def test_short_passwords_are_all_invalid(s):
+    assert not is_good_password(s)
+</code></pre>
+<pre class=fragment><code class="python">    @given(st.text(alphabet=VALID_PASSWORD_CHARS, max_size=7))
+    def test_short_passwords_are_all_invalid(s):
+&gt;       assert not is_good_password(s)
+E       AssertionError: assert not True
+E        +  where True = is_good_password('a0!')
+
+Falsifying example: test_short_passwords_are_all_invalid(s='a0!')
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section class=prominent>
+<p>so it works now, right?</p>
+</section>
+
+<section><pre><code class="python" data-trim>
+def is_good_password(pw):
+    return pw == "aaaaaA1!" # Objectively the best password
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+REQUIRED = [string.ascii_lowercase, string.ascii_uppercase,
+            string.digits, SYMBOLS]
+
+@st.composite
+def valid_password(draw):
+    bits = ''.join(
+      draw(st.text(alphabet=required, min_size=1))
+      for required in REQUIRED)
+    bits += draw(st.text(
+        alphabet=VALID_PASSWORD_CHARS,
+        min_size=max(0, 8 - len(bits))))
+    return ''.join(draw(st.permutations(bits)))
+
+
+@given(valid_password())
+def test_all_valid_passwords_are_good(s):
+    assert is_good_password(s)
+</code></pre>
+</section>
+
+<section>
+<pre><code class="python">    @given(valid_password())
+    def test_all_valid_passwords_are_good(s):
+&gt;       assert is_good_password(s)
+E       AssertionError: assert False
+E        +  where False = is_good_password('x0!!!!!0')
+
+Falsifying example: test_all_valid_passwords_are_good(s='x0!!!!!0')
+</code></pre>
+
+<p class=fragment style='color: red; font-variant: small-caps;'>NB: cheating</p>
+
+</section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwxyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section class=prominent>
+<p>one last thing</p>
+</section>
+
+<section><pre><code class="python" data-trim>
+@given(st.data())
+def test_all_required_parts_are_needed(data):
+    parts = list(REQUIRED)
+    parts.remove(
+        data.draw(st.sampled_from(parts), label="removed"))
+    password = data.draw(st.text(
+        alphabet=''.join(parts), min_size=8), label="password")
+    assert not is_good_password(password)
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>&gt;       assert not is_good_password(password)
+E       AssertionError: assert not True
+E        +  where True = is_good_password('AAAAAA0!')
+
+Falsifying example: test_all_required_parts_are_needed(data=data(...))
+Draw 1 (removed): 'abcdefghijklmnopqrstuvwxyz'
+Draw 2 (password): 'AAAAAA0!'
+</code></pre>
+</section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwxyz"
+upper_letters = lower_letters.upper()
+letters = lower_letters + upper_letters
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+
+<section><pre><code class="python" data-trim>
+lower_letters = "abcdefghijklmnopqrstuvwxyz"
+upper_letters = lower_letters.upper()
+digits = "0123456789"
+symbols = '!@#$%^&amp;*()-_=+.,'
+
+
+def is_good_password(pw):
+    if len(pw) &lt; 8:
+        return False
+    chars = set(pw)
+    return not (
+        chars.isdisjoint(lower_letters) or
+        chars.isdisjoint(upper_letters) or
+        chars.isdisjoint(digits) or
+        chars.isdisjoint(symbols)
+    )
+</code></pre></section>
+<section class=prominent>
+<p>have we written enough tests <em>now</em>?</p>
+<p class=fragment>eh, 's probably good enough</p>
+</section>
+
+<section>
+<h2>What did we do?</h2>
+<ol>
+<li class=fragment>Took a specification.</li>
+<li class=fragment>Turned each requirement in it into tests.</li>
+<li class=fragment>Including both positive and negative requirements!</li>
+<li class=fragment><em>Generated</em> examples as input to those tests.</li>
+</ol>
+</section>
+
+<section class=prominent>
+<p>this finds real bugs!</p>
+</section>
+
+<section><pre><code class="python" data-trim>
+from mercurial.encoding import fromutf8b, toutf8b
+
+from hypothesis import given
+from hypothesis.strategies import binary
+
+@given(binary())
+def test_decode_inverts_encode(s):
+    assert fromutf8b(toutf8b(s)) == s
+</code></pre>
+
+<pre class=fragment><code data-trim>
+UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2...
+
+Falsifying example: test_decode_inverts_encode(
+  s='\xc2\xc2\x80'
+)
+</code></pre></section>
+
+<section>
+<pre><code class="python" data-trim>
+
+from hypothesis.strategies import floats, lists
+from hypothesis import given
+from statistics import mean
+
+
+@given(lists(floats(), min_size=1))
+def test_mean_is_within_bounds(ls):
+    assert min(ls) &lt;= mean(ls) &lt;= max(ls)
+
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>
+OverflowError: integer division result too large for a float
+
+Falsifying example: test_mean_is_within_bounds(
+  ls=[8.988465674311579e+307, 8.98846567431158e+307]
+)
+
+</code></pre></section>
+
+<section>
+<pre><code class="python" data-trim>
+from hypothesis import given, assume
+from hypothesis.strategies import text
+
+from unicodedata import normalize
+
+
+@given(text(min_size=1), text(min_size=1))
+def test_normalization_of_separated(s, t):
+    assume(s == normalize("NFC", s))
+    r = normalize("NFC", s + u"---" + t)
+    assert r[:len(s)] == s
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>
+AssertionError: u"\uafb8\u11a7" != u'\uafb8-'
+
+Falsifying example: test_normalization_of_separated(
+  s=u"\uafb8\u11a7",
+  t=u"\U0002f8a1"
+)
+</code></pre>
+
+<p class=fragment style="color: red">CHEAT</p>
+
+</section>
+
+<section>
+<pre><code class="python" data-trim>
+@given(
+    password=st.text(), time_cost=st.integers(1, 10),
+    parallelism=st.integers(1, 10), memory_cost=st.integers(8, 2048),
+    hash_len=st.integers(12, 1000), salt_len=st.integers(8, 1000),
+)
+def test_a_password_verifies(
+    password, time_cost, parallelism, memory_cost, hash_len, salt_len,
+):
+    assume(parallelism * 8 &lt;= memory_cost)
+    ph = PasswordHasher(
+        time_cost=time_cost, parallelism=parallelism,
+        memory_cost=memory_cost, hash_len=hash_len, salt_len=salt_len,
+    )
+    hash = ph.hash(password)
+    ph.verify(hash, password)
+</code></pre>
+
+<pre class=fragment><code class="python" data-trim>
+VerificationError: Decoding failed
+
+Falsifying example: test_a_password_verifies(
+  password='',
+  time_cost=1, parallelism=1, memory_cost=8,
+  hash_len=513, salt_len=8
+)
+</code></pre>
+
+</section>
+
+<section class=prominent>
+<p>...but probably not all of them.</p>
+</section>
+
+<section class=prominent>
+<p>perfection is unattainable</p>
+</section>
+
+<section class=prominent>
+<p>...but we can do <em>better</em>.</p>
+</section>
+
+        <section>
+          <p>David R. MacIver / drmaciver.com</p>
+          <p><a href=http://hypothesis.works/>hypothesis.works</a></p>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: false,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'fade',
+
+        dependencies: [
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true },
+          { src: 'reveal/plugin/math/math.js', async: true },
+          { src: 'reveal/lib/js/fullscreen-img.js', async: true },
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
