@@ -169,6 +169,10 @@ Falsifying example: test_can_parse_iso_format(
 </section>
 
 <section class=prominent>
+hypothesis does the tedious bit
+</section>
+
+<section class=prominent>
 why does this matter?
 </section>
 
@@ -191,6 +195,16 @@ Yuan, Ding, et al. OSDI. 2014.
 </ul>
 </section>
 
+<section class=prominent>
+unpredictability multiplies
+</section>
+
+<section class=prominent>
+<p>unpredictable components</p>
+<p class=fragment><em>very</em> unpredictable systems</p>
+</section>
+
+
 <section><pre><code class="python" data-trim>
 from binaryornot.helpers import is_binary_string
 
@@ -209,15 +223,6 @@ Falsifying example: test_never_crashes(
   s=b'\xae\xc5\xdc'
 )
 </code></pre></section>
-
-<section class=prominent>
-unpredictability multiplies
-</section>
-
-<section class=prominent>
-<p>unpredictable components</p>
-<p class=fragment><em>very</em> unpredictable systems</p>
-</section>
 
 <section class=prominent>
 how do we write tests like this?
