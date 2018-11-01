@@ -538,7 +538,10 @@ from hypothesis import given
 from statistics import mean
 
 
-@given(lists(floats(), min_size=1))
+@given(lists(
+  floats(allow_nan=False, allow_infinty=False),
+  min_size=1,
+))
 def test_mean_is_within_bounds(ls):
     assert min(ls) &lt;= mean(ls) &lt;= max(ls)
 
